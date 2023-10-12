@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.mystamp"
-    compileSdk = 33
+    compileSdk = 34  // 컴파일 SDK 버전을 34로 업데이트
 
     defaultConfig {
         applicationId = "com.example.mystamp"
@@ -50,10 +50,16 @@ android {
 }
 
 dependencies {
+    // jetpack compose
+    implementation("androidx.compose.ui:ui:1.2.0-alpha03")
+    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.compose.material:material:1.2.0-alpha03")
+    implementation("androidx.compose.ui:ui-tooling:1.2.0-alpha03")
 
+    // 기본 생성된 gradle
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.activity:activity-compose:1.8.0") // androidx.activity:activity-compose 버전을 업데이트
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
