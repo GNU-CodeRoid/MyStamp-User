@@ -13,7 +13,12 @@
         android:theme="@style/Theme.MyStamp"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.RegisterActivity"
+            android:exported="false"
+            android:label="@string/title_activity_register"
+            android:theme="@style/Theme.MyStamp" />
+        <activity
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.MyStamp">

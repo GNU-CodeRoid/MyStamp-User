@@ -1,5 +1,6 @@
-package com.example.mystamp
+package com.example.mystamp.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,6 +24,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Greeting("Android")
+                    val intent = Intent(this,RegisterActivity::class.java)
+                    startActivity(intent)
                 }
             }
         }
