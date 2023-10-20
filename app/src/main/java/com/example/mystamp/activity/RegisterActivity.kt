@@ -50,8 +50,9 @@ class RegisterActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RegistrationScreen() {
+    var userName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+
 
     val activity = LocalContext.current as Activity
 
@@ -70,9 +71,9 @@ private fun RegistrationScreen() {
         )
 
         TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("비밀번호") },
+            value = userName,
+            onValueChange = { userName = it },
+            label = { Text("이름") },
             visualTransformation = PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.height(16.dp))
