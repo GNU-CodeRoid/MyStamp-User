@@ -1,3 +1,5 @@
+
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -50,6 +52,13 @@ android {
 }
 
 dependencies {
+
+    // card stack
+    implementation("androidx.compose.material:material-icons-extended:1.3.1")
+    implementation("com.google.accompanist:accompanist-pager:0.20.0")
+    implementation("androidx.compose.ui:ui-util:1.2.0")
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
     // jetpack compose
     implementation("androidx.compose.ui:ui:1.2.0-alpha03")
     implementation("androidx.activity:activity-compose:1.8.0")

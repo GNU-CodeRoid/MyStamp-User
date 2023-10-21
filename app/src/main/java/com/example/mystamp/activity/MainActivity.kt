@@ -63,7 +63,6 @@ fun Screen() {
     ) {
         // 상단에 앱 이름 표시
         AppName(name = "마이 스탬프")
-
         // 나머지 화면 컨텐츠 추가
         Box(
             modifier = Modifier
@@ -72,7 +71,26 @@ fun Screen() {
 
 
         ) {
-            StackedCardsWithClick()
+            //StackedCardsWithClick()
+
+            val sliderList = listOf(
+                "https://file.miricanvas.com/template_thumb/2019/05/24/3738-1558697059485/1558697059485/thumb.jpg",
+                "https://file.miricanvas.com/template_thumb/2019/05/24/3738-1558697059485/1558697059485/thumb.jpg",
+                "https://file.miricanvas.com/template_thumb/2019/05/24/3738-1558697059485/1558697059485/thumb.jpg",
+                "https://file.miricanvas.com/template_thumb/2019/05/24/3738-1558697059485/1558697059485/thumb.jpg",
+                "https://file.miricanvas.com/template_thumb/2019/05/24/3738-1558697059485/1558697059485/thumb.jpg"
+            )
+            Carousel(
+                count = sliderList.size,
+                contentWidth = 360.dp,
+                contentHeight = 200.dp,
+                content = { modifier, index ->
+                    MyComposableContent(
+                        item = sliderList[index],
+                        modifier = modifier
+                    )
+                }
+            )
         }
 
     }
@@ -95,7 +113,6 @@ fun AppName(name: String) {
 @Composable
 fun StackedCardsWithClick() {
     var cardIndex by remember { mutableStateOf(0) }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -153,5 +170,6 @@ fun CardWithClick(
 @Composable
 @Preview
 fun StackedCardsWithClickPreview() {
-    StackedCardsWithClick()
+    //StackedCardsWithClick()
+
 }
