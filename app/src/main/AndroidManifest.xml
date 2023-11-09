@@ -34,13 +34,17 @@
             android:exported="false"/>
 
         <!--QR 코드 스캐너 화면 회전 관련-->
-        <activity android:name=".activity.AnyOrientationCaptureActivity"
+
+        <activity
+            android:name=".QRHelper$AnyOrientationCaptureActivity"
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation"
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden"
-            android:exported="false"/>
+            android:exported="false">
+            <!-- 다른 설정들 추가 가능 -->
+        </activity>
     </application>
 
 </manifest>

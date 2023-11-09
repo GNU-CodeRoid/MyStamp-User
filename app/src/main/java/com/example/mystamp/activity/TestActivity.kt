@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -95,7 +94,7 @@ class TestActivity : ComponentActivity() {
         "https://file.miricanvas.com/template_thumb/2019/05/24/3738-1558697059485/1558697059485/thumb.jpg",
         "https://gongu.copyright.or.kr/gongu/wrt/cmmn/wrtFileImageView.do?wrtSn=13221193&filePath=L2Rpc2sxL25ld2RhdGEvMjAxOS8yMS9DTFMxMDAwNC8xMzIyMTE5M19XUlRfMjAxOTExMjFfMQ==&thumbAt=Y&thumbSe=b_tbumb&wrtTy=10004",
         "https://www.adobe.com/kr/creativecloud/photography/hub/guides/media_197108eb1be1977ee2a87738b4cd58efbf34f5ba7.jpeg?width=750&format=jpeg&optimize=medium",
-        )
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -254,7 +253,7 @@ class TestActivity : ComponentActivity() {
                         .size(size)
                         .background(color, CircleShape),
 
-                )
+                    )
             }
         }
     }
