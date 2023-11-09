@@ -53,6 +53,10 @@ android {
 
 dependencies {
 
+    // QR Code scan
+    implementation("com.journeyapps:zxing-android-embedded:4.1.0")
+    implementation("com.google.zxing:core:3.4.0")
+
     // card stack
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation("com.google.accompanist:accompanist-pager:0.20.0")
