@@ -19,7 +19,6 @@
 package com.example.mystamp.activity
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -29,16 +28,22 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -46,6 +51,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,9 +64,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.window.Dialog
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.mystamp.QRHelper
@@ -74,19 +82,35 @@ import com.google.zxing.integration.android.IntentIntegrator.parseActivityResult
 import kotlin.math.absoluteValue
 
 class MainActivity : ComponentActivity() {
+    data class StampCount(var count: Int, val couponImageUrl: Any)
 
-
-    private val sampleImageUrls = listOf(
+    private val frontImageUrls = listOf(
         // 다른 이미지 URL을 추가하세요.
-        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2019/NC242B.jpg",
-        "https://file.miricanvas.com/template_thumb/2019/05/24/3738-1558697059485/1558697059485/thumb.jpg",
+        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214F.jpg",
+        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC213F.jpg",
         R.drawable.blank
     )
+
+    private val backImageUrls = listOf(
+        // 다른 이미지 URL을 추가하세요.
+        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214B.jpg",
+        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC213B.jpg",
+        R.drawable.blank
+    )
+
+    private var scanComplete = false
+    private var qrCodeData: String? = null
+
+    private lateinit var stampCounts: List<StampCount>
+
+    private var stampLine1 = 0
+    private var stampLine2 = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
+            stampCounts = frontImageUrls.map { StampCount(count = 0, couponImageUrl = it) }
             MyStampTheme {
                 Surface {
                     Screen()
@@ -94,6 +118,12 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        qrCodeData = null // Reset qrCodeData to null or an appropriate default value
+        super.onDestroy()
+    }
+
 
     @OptIn(ExperimentalPagerApi::class)
     @Composable
@@ -118,15 +148,19 @@ class MainActivity : ComponentActivity() {
         if (result != null) {
             if (result.contents != null) {
                 // QR 코드 데이터는 result.contents에 저장됩니다.
-                val qrCodeData = result.contents
+                qrCodeData = result.contents
                 // QR 코드 데이터를 Toast 메시지로 표시합니다.
-                Toast.makeText(this, "스캔 완료 : $qrCodeData", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "스탬프가 적립되었습니다.", Toast.LENGTH_SHORT).show()
                 // QR 코드 데이터를 Logcat에 로깅합니다.
                 Log.d("QRCodeScan", "스캔한 QR 코드 데이터: $qrCodeData")
+
+                scanComplete = true
+
+
                 // QR 코드로 스캔된 링크를 열기 위해 Intent를 생성합니다.
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(qrCodeData))
+                //val intent = Intent(Intent.ACTION_VIEW, Uri.parse(qrCodeData))
                 // 생성한 Intent를 실행하여 링크를 엽니다.
-                startActivity(intent)
+                //startActivity(intent)
 
             }
         } else {
@@ -142,8 +176,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPagerApi::class, ExperimentalCoilApi::class)
     @Composable
     fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier) {
-        val pageCount = sampleImageUrls.size // 이미지 리스트의 사이즈 (이 경우에는 4)
-
+        val pageCount = frontImageUrls.size // 이미지 리스트의 사이즈 (이 경우에는 4)
         val currentActivity = LocalContext.current as? Activity
         // 현재 페이지를 기록하기 위한 pagerState
         val pagerState = rememberPagerState()
@@ -155,6 +188,13 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(pagerState.currentPage) {
             currentPage = pagerState.currentPage
         }
+
+        // 다이얼로그 표시 상태를 관리하는 MutableState
+        var showDialog by remember { mutableStateOf(false) }
+
+
+
+
         HorizontalPager(
             state = pagerState,
             count = pageCount,
@@ -196,9 +236,10 @@ class MainActivity : ComponentActivity() {
                         if(page==pageCount-1){
                             Toast.makeText(currentActivity,"마지막 스탬프보드 입니다",Toast.LENGTH_SHORT).show()
                         }else{
-                            if(currentActivity!=null){
-                                QRHelper.scanQRCode(currentActivity)
-                            }
+                            // 이미지 카드 클릭 Dialog 동작
+                            showDialog = true
+
+
                         }
 
 
@@ -211,7 +252,7 @@ class MainActivity : ComponentActivity() {
                     Box {
 
                         Image(
-                            painter = rememberImagePainter(data = sampleImageUrls[page]),
+                            painter = rememberImagePainter(data = frontImageUrls[page]),
                             contentDescription = null,
                             modifier = Modifier.fillMaxWidth(),
                             contentScale = ContentScale.Crop    // 이미지가 잘려서 확대됩니다.
@@ -223,6 +264,97 @@ class MainActivity : ComponentActivity() {
 
             }
         }
+
+        if (showDialog) { // 대화 상자를 표시해야 하는지 확인합니다.
+            Dialog(onDismissRequest = { showDialog = false }) { // 닫기 기능이 있는 대화 상자를 만듭니다.
+                Box( // 대화 상자 내용을 담는 컨테이너입니다.
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .padding(16.dp)
+                ) {
+                    Column( // 대화 상자 내용의 열 레이아웃입니다.
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image( // 이미지를 표시합니다.
+                            painter = rememberImagePainter(data = backImageUrls[currentPage]),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth(),
+                            contentScale = ContentScale.Crop
+                        )
+                        Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
+                        Button( // QR 코드를 스캔하기 위한 버튼입니다.
+                            onClick = {
+                                if (currentActivity != null) { // currentActivity가 null이 아닌지 확인합니다.
+                                    QRHelper.scanQRCode(currentActivity) // QR 코드를 스캔하는 함수를 호출합니다.
+                                }
+                                showDialog = false // 대화 상자를 닫기 위해 showDialog를 false로 설정합니다.
+
+                            },
+                            modifier = Modifier
+                                .widthIn(max = 200.dp)
+                                .heightIn(max = 50.dp)
+                        ) {
+                            Text( // 버튼에 표시되는 텍스트입니다.
+                                "QR코드 스캔",
+                                color = Color.White // 텍스트 색상을 흰색으로 설정합니다.
+                            )
+                        }
+                    }
+                }
+
+                if (scanComplete) { // 스캔이 완료되었는지 확인합니다.
+                    // 스탬프 수를 증가시키고 조건에 따라 디스플레이를 업데이트합니다.
+                    stampCounts[currentPage].count = stampCounts[currentPage].count + 1
+                    Log.d("stampCounts", "stampCounts: ${stampCounts[currentPage].count} + ${stampCounts[currentPage].couponImageUrl}")
+
+                    if (stampCounts[currentPage].count > 5) { // 스탬프 수 조건을 확인합니다.
+                        stampLine2 += 1 // line2를 증가시킵니다.
+                    } else {
+                        stampLine1 += 1 // line1을 증가시킵니다.
+                    }
+                }
+
+                // 수에 따라 스탬프를 표시합니다.
+                Row(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(top = 35.dp, start = 30.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)// 가로 정렬 방식을 설정합니다. 각 요소 사이에 2dp 간격을 두고 배치합니다.
+                ) {
+                    repeat(stampLine1) {
+                        Image(
+                            painter = painterResource(R.drawable.stamp_image),
+                            contentDescription = null,
+                            modifier = Modifier.size(50.dp)
+                        )
+                    }
+                }
+
+                if (stampCounts[currentPage].count > 5) { // 스탬프 수가 5를 초과하는지 확인합니다.
+                    Row(
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(top = 80.dp, start = 30.dp),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        repeat(stampLine2) {
+                            Image(
+                                painter = painterResource(R.drawable.stamp_image),
+                                contentDescription = null,
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+                    }
+                }
+
+                scanComplete = false // 다음 반복을 위해 scanComplete 플래그를 재설정합니다.
+            }
+        }
+
+
+
         // 카드 윗 부분에 포커스된 페이지 인덱스에 따라 점을 그리기
         Row(
             modifier = Modifier
