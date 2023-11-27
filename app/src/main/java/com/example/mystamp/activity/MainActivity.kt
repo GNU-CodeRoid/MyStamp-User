@@ -24,8 +24,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -71,7 +69,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.mystamp.QRHelper
 import com.example.mystamp.R
@@ -188,16 +185,15 @@ class MainActivity : ComponentActivity() {
         // pagerState의 현재 페이지를 감시하고 currentPage를 업데이트
         LaunchedEffect(pagerState.currentPage) {
             currentPage = pagerState.currentPage
+            pagerState.animateScrollToPage(pagerState.currentPage, /* your animation specs here */)
         }
 
         // 다이얼로그 표시 상태를 관리하는 MutableState
         var showDialog by remember { mutableStateOf(false) }
 
 
-
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             HorizontalPager(
                 state = pagerState,
@@ -205,6 +201,7 @@ class MainActivity : ComponentActivity() {
                 contentPadding = PaddingValues(horizontal = 16.dp),
 
             ) { page ->
+
                 Card(
                     Modifier
                         .graphicsLayer {
@@ -212,6 +209,8 @@ class MainActivity : ComponentActivity() {
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
                             val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
+
+                            Log.d("PagerState", "Current page: ${pagerState.currentPage}, Scroll offset: ${pagerState.currentPageOffset}")
 
                             // We animate the scaleX + scaleY, between 85% and 100%
                             lerp(
@@ -230,12 +229,13 @@ class MainActivity : ComponentActivity() {
                                 fraction = 1f - pageOffset.coerceIn(0f, 1f)
                             )
                         }
-                        .aspectRatio(16 / 9f)
+                        .fillMaxWidth()
+                        .aspectRatio(9 / 5f)
                         .padding(top = 30.dp)
-                        .clickable() {
+                        .clickable {
                             Log.d("ClickEvent", "Click")
                             //마지막 스탬프보드(+버튼이 있는 이미지) 스탬프 보드 추가에 사용
-                            if (page == pageCount - 1) {
+                            if (page == (pageCount - 1)) {
                                 Toast
                                     .makeText(currentActivity, "마지막 스탬프보드 입니다", Toast.LENGTH_SHORT)
                                     .show()
@@ -247,7 +247,7 @@ class MainActivity : ComponentActivity() {
                             }
 
 
-                        }, border = BorderStroke(1.dp, Color.LightGray), // 테두리 추가
+                        }.background(Color.Red) // 임시 배경색, border = BorderStroke(1.dp, Color.LightGray), // 테두리 추가
 
                 ) {
                     Column(
@@ -388,6 +388,7 @@ class MainActivity : ComponentActivity() {
 
 
     }
+
 }
 
 
