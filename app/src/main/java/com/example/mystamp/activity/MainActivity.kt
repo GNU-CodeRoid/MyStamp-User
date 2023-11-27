@@ -102,14 +102,12 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var stampBoards: List<StampBoard>
 
-    private var stampLine1 = 0
-    private var stampLine2 = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            stampBoards = frontImageUrls.map { StampBoard(stampCount = 0, image = it) }
+            stampBoards = frontImageUrls.map { StampBoard(stampCount = 0, image = it, 15,0,0,0) }
             MyStampTheme {
                 Surface {
                     Screen()
@@ -148,7 +146,6 @@ class MainActivity : ComponentActivity() {
                 // QR 코드 데이터는 result.contents에 저장됩니다.
                 qrCodeData = result.contents
                 // QR 코드 데이터를 Toast 메시지로 표시합니다.
-                Toast.makeText(this, "스탬프가 적립되었습니다.", Toast.LENGTH_SHORT).show()
                 // QR 코드 데이터를 Logcat에 로깅합니다.
                 Log.d("QRCodeScan", "스캔한 QR 코드 데이터: $qrCodeData")
 
@@ -337,47 +334,40 @@ class MainActivity : ComponentActivity() {
 
                 if (scanComplete) { // 스캔이 완료되었는지 확인합니다.
                     // 스탬프 수를 증가시키고 조건에 따라 디스플레이를 업데이트합니다.
-                    stampBoards[currentPage].stampCount = stampBoards[currentPage].stampCount + 1
-                    Log.d("stampCounts", "stampCounts: ${stampBoards[currentPage].stampCount} + ${stampBoards[currentPage].image}")
 
-                    if (stampBoards[currentPage].stampCount > 5) { // 스탬프 수 조건을 확인합니다.
-                        stampLine2 += 1 // line2를 증가시킵니다.
-                    } else {
-                        stampLine1 += 1 // line1을 증가시킵니다.
+
+                    if(stampBoards[currentPage].stampCount == stampBoards[currentPage].maxCount){
+                        Toast.makeText(this, "스탬프를 다채웠습니다", Toast.LENGTH_SHORT).show()
+                    }else{
+                        stampBoards[currentPage].stampCount += 1
+                        Toast.makeText(this, "스탬프가 적립되었습니다.", Toast.LENGTH_SHORT).show()
                     }
-                }
 
-                // 수에 따라 스탬프를 표시합니다.
-                Row(
-                    modifier = Modifier
-                        .horizontalScroll(rememberScrollState())
-                        .padding(top = 35.dp, start = 30.dp),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)// 가로 정렬 방식을 설정합니다. 각 요소 사이에 2dp 간격을 두고 배치합니다.
-                ) {
-                    repeat(stampLine1) {
-                        Image(
-                            painter = painterResource(R.drawable.stamp_image),
-                            contentDescription = null,
-                            modifier = Modifier.size(50.dp)
-                        )
-                    }
-                }
+                    when {
+                        stampBoards[currentPage].stampCount < 5 -> {
+                            stampBoards[currentPage].lineCount1 += 1
+                        }
+                        stampBoards[currentPage].stampCount < 10 -> {
+                            stampBoards[currentPage].lineCount2 += 1
+                        }
+                        stampBoards[currentPage].stampCount < 15 -> {
+                            stampBoards[currentPage].lineCount3 += 1
+                        }
+                        else -> {
 
-                if (stampBoards[currentPage].stampCount > 5) { // 스탬프 수가 5를 초과하는지 확인합니다.
-                    Row(
-                        modifier = Modifier
-                            .horizontalScroll(rememberScrollState())
-                            .padding(top = 80.dp, start = 30.dp),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        repeat(stampLine2) {
-                            Image(
-                                painter = painterResource(R.drawable.stamp_image),
-                                contentDescription = null,
-                                modifier = Modifier.size(50.dp)
-                            )
                         }
                     }
+                }
+
+
+                // 수에 따라 스탬프를 표시합니다.
+
+                Stamping(stampBoards[currentPage].lineCount1,35,30)
+                if (stampBoards[currentPage].stampCount > 5) { // 스탬프 수가 5를 초과하는지 확인합니다.
+                    Stamping(stampBoards[currentPage].lineCount2,80,30)
+                }
+                if (stampBoards[currentPage].stampCount > 10) {
+                    Stamping(stampBoards[currentPage].lineCount3,125,30)
                 }
 
                 scanComplete = false // 다음 반복을 위해 scanComplete 플래그를 재설정합니다.
@@ -387,6 +377,24 @@ class MainActivity : ComponentActivity() {
 
 
 
+    }
+
+    @Composable
+    private fun Stamping(lineCount: Int,paddingTop: Int ,paddingStart: Int) {
+        Row(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(top = paddingTop.dp, start = paddingStart.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp)// 가로 정렬 방식을 설정합니다. 각 요소 사이에 2dp 간격을 두고 배치합니다.
+        ) {
+            repeat(lineCount) {
+                Image(
+                    painter = painterResource(R.drawable.stamp_image),
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+        }
     }
 
 }
