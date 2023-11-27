@@ -24,7 +24,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,6 +54,7 @@ import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -69,10 +69,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.mystamp.QRHelper
 import com.example.mystamp.R
+import com.example.mystamp.dto.StampBoard
 import com.example.mystamp.ui.theme.MyStampTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -82,26 +82,25 @@ import com.google.zxing.integration.android.IntentIntegrator.parseActivityResult
 import kotlin.math.absoluteValue
 
 class MainActivity : ComponentActivity() {
-    data class StampCount(var count: Int, val couponImageUrl: Any)
 
     private val frontImageUrls = listOf(
         // 다른 이미지 URL을 추가하세요.
         "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214F.jpg",
         "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC213F.jpg",
-        R.drawable.blank
+        "last"
     )
 
     private val backImageUrls = listOf(
         // 다른 이미지 URL을 추가하세요.
         "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214B.jpg",
         "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC213B.jpg",
-        R.drawable.blank
+        "last"
     )
 
     private var scanComplete = false
     private var qrCodeData: String? = null
 
-    private lateinit var stampCounts: List<StampCount>
+    private lateinit var stampBoards: List<StampBoard>
 
     private var stampLine1 = 0
     private var stampLine2 = 0
@@ -110,7 +109,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            stampCounts = frontImageUrls.map { StampCount(count = 0, couponImageUrl = it) }
+            stampBoards = frontImageUrls.map { StampBoard(id=0,stampCount = 0, image = it) }
             MyStampTheme {
                 Surface {
                     Screen()
@@ -125,7 +124,6 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    @OptIn(ExperimentalPagerApi::class)
     @Composable
     private fun Screen() {
 
@@ -173,7 +171,7 @@ class MainActivity : ComponentActivity() {
 
 
 
-    @OptIn(ExperimentalPagerApi::class, ExperimentalCoilApi::class)
+    @OptIn(ExperimentalPagerApi::class)
     @Composable
     fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier) {
         val pageCount = frontImageUrls.size // 이미지 리스트의 사이즈 (이 경우에는 4)
@@ -182,88 +180,121 @@ class MainActivity : ComponentActivity() {
         val pagerState = rememberPagerState()
 
         // 현재 페이지를 추적하는 MutableState
-        var currentPage by remember { mutableStateOf(0) }
+        var currentPage by remember { mutableIntStateOf(0) }
 
         // pagerState의 현재 페이지를 감시하고 currentPage를 업데이트
         LaunchedEffect(pagerState.currentPage) {
             currentPage = pagerState.currentPage
+            pagerState.animateScrollToPage(pagerState.currentPage, /* your animation specs here */)
         }
 
         // 다이얼로그 표시 상태를 관리하는 MutableState
         var showDialog by remember { mutableStateOf(false) }
 
 
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                count = pageCount,
+                contentPadding = PaddingValues(horizontal = 16.dp),
 
+                ) { page ->
 
-        HorizontalPager(
-            state = pagerState,
-            count = pageCount,
-            // Add 32.dp horizontal padding to 'center' the pages
-            contentPadding = PaddingValues(horizontal = 60.dp),
-            modifier = modifier.fillMaxSize()
-        ) { page ->
-            Card(
-                Modifier
-                    .graphicsLayer {
-                        // Calculate the absolute offset for the current page from the
-                        // scroll position. We use the absolute value which allows us to mirror
-                        // any effects for both directions
-                        val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
+                Card(
+                    Modifier
+                        .graphicsLayer {
+                            // Calculate the absolute offset for the current page from the
+                            // scroll position. We use the absolute value which allows us to mirror
+                            // any effects for both directions
+                            val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
 
-                        // We animate the scaleX + scaleY, between 85% and 100%
-                        lerp(
-                            start = 0.85f,
-                            stop = 1f,
-                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                        ).also { scale ->
-                            scaleX = scale
-                            scaleY = scale
+                            Log.d("PagerState", "Current page: ${pagerState.currentPage}, Scroll offset: ${pagerState.currentPageOffset}")
+
+                            // We animate the scaleX + scaleY, between 85% and 100%
+                            lerp(
+                                start = 0.85f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                            ).also { scale ->
+                                scaleX = scale
+                                scaleY = scale
+                            }
+
+                            // We animate the alpha, between 50% and 100%
+                            alpha = lerp(
+                                start = 0.5f,
+                                stop = 1f,
+                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                            )
                         }
+                        .fillMaxWidth()
+                        .aspectRatio(9 / 5f)
+                        .padding(top = 30.dp)
+                        .clickable {
+                            Log.d("ClickEvent", "Click")
+                            //마지막 스탬프보드(+버튼이 있는 이미지) 스탬프 보드 추가에 사용
+                            if (page == (pageCount - 1)) {
+                                Toast
+                                    .makeText(currentActivity, "마지막 스탬프보드 입니다", Toast.LENGTH_SHORT)
+                                    .show()
+                            } else {
+                                // 이미지 카드 클릭 Dialog 동작
+                                showDialog = true
 
-                        // We animate the alpha, between 50% and 100%
-                        alpha = lerp(
-                            start = 0.5f,
-                            stop = 1f,
-                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                        )
+
+                            }
+
+
+                        }.background(Color.Red) // 임시 배경색, border = BorderStroke(1.dp, Color.LightGray), // 테두리 추가
+
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box {
+
+                            Image(
+                                modifier = Modifier.fillMaxSize(),
+                                painter = rememberImagePainter(
+                                    data = when {
+                                        frontImageUrls[page] == "last" -> R.drawable.blank
+                                        else -> frontImageUrls[page]
+                                    }
+                                ),
+                                contentDescription = "스탬프 보드 메인",
+                                contentScale = ContentScale.Crop    // 이미지가 잘려서 확대됩니다.
+
+                            )
+
+                        }
                     }
-                    .fillMaxWidth()
-                    //.aspectRatio(1f)
-                    .aspectRatio(9/5f)
-                    .clickable {
-                        Log.d("ClickEvent", "Click")
-                        //마지막 스탬프보드(+버튼이 있는 이미지) 스탬프 보드 추가에 사용
-                        if(page==pageCount-1){
-                            Toast.makeText(currentActivity,"마지막 스탬프보드 입니다",Toast.LENGTH_SHORT).show()
-                        }else{
-                            // 이미지 카드 클릭 Dialog 동작
-                            showDialog = true
 
+                }
 
-                        }
+                // 카드 윗 부분에 포커스된 페이지 인덱스에 따라 점을 그리기
+                Row( // 윗 부분에 공백 추가
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, alignment = Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    for (index in 0 until pageCount) {
+                        val isCurrentPage = index == currentPage
+                        val color = if (isCurrentPage) Color.Gray else Color.LightGray
+                        val size = if (isCurrentPage) 12.dp else 8.dp
+                        Box(
+                            modifier = Modifier
+                                .size(size)
+                                .background(color, CircleShape),
 
-
-                    }, border = BorderStroke(1.dp, Color.LightGray), // 테두리 추가
-
-            ) {
-                Column(modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box {
-
-                        Image(
-                            painter = rememberImagePainter(data = frontImageUrls[page]),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxWidth(),
-                            contentScale = ContentScale.Crop    // 이미지가 잘려서 확대됩니다.
-
-                        )
-
+                            )
                     }
                 }
 
             }
         }
+
 
         if (showDialog) { // 대화 상자를 표시해야 하는지 확인합니다.
             Dialog(onDismissRequest = { showDialog = false }) { // 닫기 기능이 있는 대화 상자를 만듭니다.
@@ -279,7 +310,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Image( // 이미지를 표시합니다.
                             painter = rememberImagePainter(data = backImageUrls[currentPage]),
-                            contentDescription = null,
+                            contentDescription = "스탬프 보드 내용",
                             modifier = Modifier.fillMaxWidth(),
                             contentScale = ContentScale.Crop
                         )
@@ -306,10 +337,10 @@ class MainActivity : ComponentActivity() {
 
                 if (scanComplete) { // 스캔이 완료되었는지 확인합니다.
                     // 스탬프 수를 증가시키고 조건에 따라 디스플레이를 업데이트합니다.
-                    stampCounts[currentPage].count = stampCounts[currentPage].count + 1
-                    Log.d("stampCounts", "stampCounts: ${stampCounts[currentPage].count} + ${stampCounts[currentPage].couponImageUrl}")
+                    stampBoards[currentPage].stampCount = stampBoards[currentPage].stampCount + 1
+                    Log.d("stampCounts", "stampCounts: ${stampBoards[currentPage].stampCount} + ${stampBoards[currentPage].image}")
 
-                    if (stampCounts[currentPage].count > 5) { // 스탬프 수 조건을 확인합니다.
+                    if (stampBoards[currentPage].stampCount > 5) { // 스탬프 수 조건을 확인합니다.
                         stampLine2 += 1 // line2를 증가시킵니다.
                     } else {
                         stampLine1 += 1 // line1을 증가시킵니다.
@@ -332,7 +363,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                if (stampCounts[currentPage].count > 5) { // 스탬프 수가 5를 초과하는지 확인합니다.
+                if (stampBoards[currentPage].stampCount > 5) { // 스탬프 수가 5를 초과하는지 확인합니다.
                     Row(
                         modifier = Modifier
                             .horizontalScroll(rememberScrollState())
@@ -355,27 +386,9 @@ class MainActivity : ComponentActivity() {
 
 
 
-        // 카드 윗 부분에 포커스된 페이지 인덱스에 따라 점을 그리기
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 280.dp), // 윗 부분에 공백 추가
-            horizontalArrangement = Arrangement.spacedBy(5.dp, alignment = Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            for (index in 0 until pageCount) {
-                val isCurrentPage = index == currentPage
-                val color = if (isCurrentPage) Color.Gray else Color.LightGray
-                val size = if (isCurrentPage) 12.dp else 8.dp
-                Box(
-                    modifier = Modifier
-                        .size(size)
-                        .background(color, CircleShape),
 
-                    )
-            }
-        }
     }
+
 }
 
 
