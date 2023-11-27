@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            stampBoards = frontImageUrls.map { StampBoard(id=0,stampCount = 0, image = it) }
+            stampBoards = frontImageUrls.map { StampBoard(stampCount = 0, image = it) }
             MyStampTheme {
                 Surface {
                     Screen()
