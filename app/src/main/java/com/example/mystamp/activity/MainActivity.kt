@@ -25,6 +25,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -201,7 +202,7 @@ class MainActivity : ComponentActivity() {
             HorizontalPager(
                 state = pagerState,
                 count = pageCount,
-                contentPadding = PaddingValues(horizontal = 30.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
 
             ) { page ->
                 Card(
@@ -229,9 +230,9 @@ class MainActivity : ComponentActivity() {
                                 fraction = 1f - pageOffset.coerceIn(0f, 1f)
                             )
                         }
-                        .aspectRatio(9 / 6f)
+                        .aspectRatio(16 / 9f)
                         .padding(top = 30.dp)
-                        .clickable {
+                        .clickable() {
                             Log.d("ClickEvent", "Click")
                             //마지막 스탬프보드(+버튼이 있는 이미지) 스탬프 보드 추가에 사용
                             if (page == pageCount - 1) {
@@ -275,6 +276,7 @@ class MainActivity : ComponentActivity() {
                 // 카드 윗 부분에 포커스된 페이지 인덱스에 따라 점을 그리기
                 Row( // 윗 부분에 공백 추가
                     horizontalArrangement = Arrangement.spacedBy(5.dp, alignment = Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     for (index in 0 until pageCount) {
