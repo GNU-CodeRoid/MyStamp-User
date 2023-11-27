@@ -53,6 +53,9 @@ android {
 
 dependencies {
 
+    //Retrofit2
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // QR Code scan
     implementation("com.journeyapps:zxing-android-embedded:4.1.0")

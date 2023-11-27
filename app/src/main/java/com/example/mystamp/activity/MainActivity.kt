@@ -110,6 +110,7 @@ class MainActivity : ComponentActivity() {
             stampBoards = frontImageUrls.map { StampBoard(stampCount = 0, image = it, 15,0,0,0) }
             MyStampTheme {
                 Surface {
+                    NavigateToRegisterActivity()
                     Screen()
                 }
             }
@@ -119,6 +120,12 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         qrCodeData = null // Reset qrCodeData to null or an appropriate default value
         super.onDestroy()
+    }
+
+    @Composable
+    private fun NavigateToRegisterActivity() {
+        val intent = Intent(this, RegisterActivity::class.java)
+        startActivity(intent)
     }
 
 
@@ -337,7 +344,7 @@ class MainActivity : ComponentActivity() {
 
 
                     if(stampBoards[currentPage].stampCount == stampBoards[currentPage].maxCount){
-                        Toast.makeText(this, "스탬프를 다채웠습니다", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "스탬프를 모두 채웠습니다", Toast.LENGTH_SHORT).show()
                     }else{
                         stampBoards[currentPage].stampCount += 1
                         Toast.makeText(this, "스탬프가 적립되었습니다.", Toast.LENGTH_SHORT).show()
