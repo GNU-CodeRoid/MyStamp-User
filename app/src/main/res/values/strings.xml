@@ -2,4 +2,6 @@
     <string name="app_name">마이 스탬프</string>
     <string name="activity_register">회원가입</string>
     <string name="activity_login">로그인</string>
+    <string name="activity_user">유저</string>
+    <string name="activity_coupon">쿠폰</string>
 </resources>

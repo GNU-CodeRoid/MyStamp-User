@@ -85,7 +85,7 @@ private fun LoginScreen() {
 
 @Preview(showBackground = true)
 @Composable
-private fun RegistrationScreenPreview() {
+private fun LoginScreenPreview() {
     MyStampTheme {
         LoginScreen()
     }

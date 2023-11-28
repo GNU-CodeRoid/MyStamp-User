@@ -53,107 +53,59 @@ class RegisterActivity : ComponentActivity() {
             }
         }
     }
-}
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun RegistrationScreen() {
+        var userName by remember { mutableStateOf("") }
+        var phoneNumber by remember { mutableStateOf("") }
 
 
-interface ApiService {
-    @POST("/user/signup")
-    fun signUpUser(@Body userData: UserData): Call<Void>
-}
+        val activity = LocalContext.current as Activity
 
-data class UserData(
-    val name: String,
-    val phoneNumber: String
-)
-
-object RetrofitClient {
-    private const val BASE_URL = "http://203.232.193.177:8080"
-
-    private val retrofit: Retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    val apiService: ApiService by lazy {
-        retrofit.create(ApiService::class.java)
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun RegistrationScreen() {
-    var userName by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-
-
-    val activity = LocalContext.current as Activity
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("회원 등록")
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = phoneNumber,
-            onValueChange = { phoneNumber = it },
-            label = { Text("전화번호") }
-        )
-
-        TextField(
-            value = userName,
-            onValueChange = { userName = it },
-            label = { Text("이름") },
-            //visualTransformation = PasswordVisualTransformation()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = { register(activity, userName, phoneNumber) },
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("가입하기")
-        }
-    }
-}
+            Text("회원 등록")
+            Spacer(modifier = Modifier.height(16.dp))
+            TextField(
+                value = phoneNumber,
+                onValueChange = { phoneNumber = it },
+                label = { Text("전화번호") }
+            )
 
-@Preview(showBackground = true)
-@Composable
-private fun RegistrationScreenPreview() {
-    MyStampTheme {
-        RegistrationScreen()
-    }
-}
-
-private fun register(activity: Activity, name: String, phoneNumber: String) {
-    val apiService = RetrofitClient.apiService
-    val userData = UserData(name, phoneNumber)
-
-    val call = apiService.signUpUser(userData)
-    call.enqueue(object : Callback<Void> {
-        override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            if (response.isSuccessful) {
-                // Successful request handling
-                Log.d("user/signup", "Success")
-                activity.finish()
-            } else {
-                Log.d("user/signup", "Fail")
-                // Handle request failure
-                // You can use response.code(), response.message(), etc., to check the failure reason
+            TextField(
+                value = userName,
+                onValueChange = { userName = it },
+                label = { Text("이름") },
+                //visualTransformation = PasswordVisualTransformation()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { register(activity, userName, phoneNumber) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("가입하기")
             }
         }
+    }
 
-        override fun onFailure(call: Call<Void>, t: Throwable) {
-            // Handle network request failure
-            Log.d("user/signup", "Fail(network) : $t")
+    @Preview(showBackground = true)
+    @Composable
+    private fun RegistrationScreenPreview() {
+        MyStampTheme {
+            RegistrationScreen()
         }
-    })
-}
+    }
+
+    private fun register(activity: Activity, name: String, phoneNumber: String) {
+
+    }
 
 //private fun register(activity: Activity){
 //    activity.finish()
 //}
+}

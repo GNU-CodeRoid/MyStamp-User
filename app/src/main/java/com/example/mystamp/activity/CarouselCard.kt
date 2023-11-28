@@ -74,24 +74,25 @@ fun Carousel(
             )
         }
     }
-}
-
-
-@Composable
-fun MyComposableContent(item: String, modifier: Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        AsyncImage(
-            modifier = Modifier.fillMaxSize(),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(item)
-                .crossfade(true)
-                .scale(Scale.FILL)
-                .build(),
-            contentDescription = null
-        )
+    @Composable
+    fun MyComposableContent(item: String, modifier: Modifier) {
+        Card(
+            modifier = modifier,
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            AsyncImage(
+                modifier = Modifier.fillMaxSize(),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(item)
+                    .crossfade(true)
+                    .scale(Scale.FILL)
+                    .build(),
+                contentDescription = null
+            )
+        }
     }
 }
+
+
+
 

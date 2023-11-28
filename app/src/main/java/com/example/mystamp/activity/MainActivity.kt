@@ -46,12 +46,18 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -126,17 +132,54 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun Screen() {
-
+        val activity = LocalContext.current as? Activity
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = { Text(stringResource(R.string.app_name)) },
                     backgroundColor = MaterialTheme.colors.surface,
+
+                    actions = {
+                        Row(
+                            modifier = Modifier.padding(4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    if (activity != null) {
+                                        toCouponActivity(activity)
+                                    }
+                                },
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.Filled.CreditCard,
+                                        contentDescription = "쿠폰"
+                                    )
+                                }
+                            )
+                            IconButton(
+                                onClick = {
+                                    if (activity != null) {
+                                        toUserActivity(activity)
+                                    }
+                                },
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Person,
+                                        contentDescription = "정보"
+                                    )
+                                }
+                            )
+                        }
+
+                    }
                 )
             },
             modifier = Modifier.fillMaxSize()
         ) { padding ->
-            HorizontalPagerWithOffsetTransition(Modifier.padding(padding))
+            if (activity != null) {
+                HorizontalPagerWithOffsetTransition(Modifier.padding(padding), activity)
+            }
         }
     }
 
@@ -172,9 +215,8 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalPagerApi::class)
     @Composable
-    fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier) {
+    fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier,activity: Activity) {
         val pageCount = frontImageUrls.size // 이미지 리스트의 사이즈 (이 경우에는 4)
-        val currentActivity = LocalContext.current as? Activity
         // 현재 페이지를 기록하기 위한 pagerState
         val pagerState = rememberPagerState()
 
@@ -209,7 +251,10 @@ class MainActivity : ComponentActivity() {
                             // any effects for both directions
                             val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
 
-                            Log.d("PagerState", "Current page: ${pagerState.currentPage}, Scroll offset: ${pagerState.currentPageOffset}")
+                            Log.d(
+                                "PagerState",
+                                "Current page: ${pagerState.currentPage}, Scroll offset: ${pagerState.currentPageOffset}"
+                            )
 
                             // We animate the scaleX + scaleY, between 85% and 100%
                             lerp(
@@ -236,7 +281,7 @@ class MainActivity : ComponentActivity() {
                             //마지막 스탬프보드(+버튼이 있는 이미지) 스탬프 보드 추가에 사용
                             if (page == (pageCount - 1)) {
                                 Toast
-                                    .makeText(currentActivity, "마지막 스탬프보드 입니다", Toast.LENGTH_SHORT)
+                                    .makeText(activity, "마지막 스탬프보드 입니다", Toast.LENGTH_SHORT)
                                     .show()
                             } else {
                                 // 이미지 카드 클릭 Dialog 동작
@@ -246,7 +291,8 @@ class MainActivity : ComponentActivity() {
                             }
 
 
-                        }.background(Color.Red) // 임시 배경색, border = BorderStroke(1.dp, Color.LightGray), // 테두리 추가
+                        }
+                        .background(Color.Red) // 임시 배경색, border = BorderStroke(1.dp, Color.LightGray), // 테두리 추가
 
                 ) {
                     Column(
@@ -316,9 +362,7 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
                         Button( // QR 코드를 스캔하기 위한 버튼입니다.
                             onClick = {
-                                if (currentActivity != null) { // currentActivity가 null이 아닌지 확인합니다.
-                                    QRHelper.scanQRCode(currentActivity) // QR 코드를 스캔하는 함수를 호출합니다.
-                                }
+                                QRHelper.scanQRCode(activity)
                                 showDialog = false // 대화 상자를 닫기 위해 showDialog를 false로 설정합니다.
 
                             },
@@ -397,6 +441,16 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun toCouponActivity(activity: Activity){
+        val intent = Intent(activity, CouponActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun toUserActivity(activity: Activity){
+        val intent = Intent(activity, UserActivity::class.java)
+        startActivity(intent)
     }
 
 }

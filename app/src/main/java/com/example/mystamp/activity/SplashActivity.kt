@@ -1,5 +1,6 @@
 package com.example.mystamp.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -29,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.example.mystamp.AppManager
 import com.example.mystamp.ui.theme.MyStampTheme
 
-
+@SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
