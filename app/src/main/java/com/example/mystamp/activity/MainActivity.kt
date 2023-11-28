@@ -18,7 +18,6 @@
 @file:Suppress("DEPRECATION")
 package com.example.mystamp.activity
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -53,7 +52,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -79,49 +77,102 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.rememberImagePainter
 import com.example.mystamp.utils.QRHelper
 import com.example.mystamp.R
+import com.example.mystamp.dto.ShopData
 import com.example.mystamp.dto.StampBoard
 import com.example.mystamp.ui.theme.MyStampTheme
+import com.example.mystamp.utils.ServerConnectHelper
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import com.google.zxing.integration.android.IntentIntegrator.parseActivityResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
 
 class MainActivity : ComponentActivity() {
 
-    private val frontImageUrls = listOf(
-        // 다른 이미지 URL을 추가하세요.
-        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214F.jpg",
-        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC213F.jpg",
-        "last"
-    )
-
-    private val backImageUrls = listOf(
-        // 다른 이미지 URL을 추가하세요.
-        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214B.jpg",
-        "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC213B.jpg",
-        "last"
-    )
 
     private var scanComplete = false
     private var qrCodeData: String? = null
 
-    private lateinit var stampBoards: List<StampBoard>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            stampBoards = frontImageUrls.map { StampBoard(stampCount = 0, image = it, 15,0,0,0) }
+
+
+
             MyStampTheme {
                 Surface {
+
+
                     Screen()
                 }
             }
         }
     }
+
+
+
+    private fun init(){
+        val stampBoard = StampBoard("last")
+        stampBoard.businessNumber = "last"
+    }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun fetchStampBoards(): List<StampBoard> {
+        val basicStampBoard = StampBoard(businessNumber = "last")
+        return try {
+
+            val serverConnectHelper = ServerConnectHelper()
+            val data: List<ShopData> = withContext(Dispatchers.IO) {
+                suspendCancellableCoroutine { continuation ->
+                    serverConnectHelper.requestStampBoards = object : ServerConnectHelper.RequestStampBoards {
+                        override fun onSuccess(data: List<ShopData>) {
+                            continuation.resume(data) {
+                                // This block will be executed if the coroutine is cancelled.
+                                // Clean up resources or handle cancellation if needed.
+                            }
+                        }
+
+                        override fun onFailure() {
+                            continuation.resume(emptyList())
+                        }
+                    }
+                    serverConnectHelper.getStampBoards("01099716737")
+                }
+            }
+
+            val stampBoards = data.map { datum ->
+                StampBoard("last").apply {
+                    frontImage = "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214F.jpg"
+                    backImage = "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214B.jpg"
+                    stampCount = datum.count
+                    businessNumber = datum.shopId.businessNumber
+                    maxCount = datum.shopId.stampLimit
+                }
+            }
+
+            // 통신이 성공하든 실패하든 비어있다면 기본데이터 추가
+            if (stampBoards.isEmpty()) {
+                return listOf(basicStampBoard)
+            }
+
+            // 기본 데이터와 통신에서 받은 데이터를 함께 반환
+            return listOf(basicStampBoard) + stampBoards
+
+        } catch (e: Exception) {
+            // Handle the exception (log, report, etc.)
+            listOf(basicStampBoard)
+        }
+    }
+
+
 
 
     override fun onDestroy() {
@@ -216,7 +267,16 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPagerApi::class)
     @Composable
     fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier,activity: Activity) {
-        val pageCount = frontImageUrls.size // 이미지 리스트의 사이즈 (이 경우에는 4)
+        var stampBoards by remember { mutableStateOf(listOf<StampBoard>()) }
+        LaunchedEffect(Unit) {
+            try {
+                stampBoards = fetchStampBoards()
+                Log.d("StampBoards", "스탬프 보드 크기: ${stampBoards.size}")
+            } catch (e: Exception) {
+                Log.e("NetworkError", "스탬프 보드 가져오기 오류", e)
+            }
+        }
+        val pageCount = stampBoards.size // 이미지 리스트의 사이즈 (이 경우에는 4)
         // 현재 페이지를 기록하기 위한 pagerState
         val pagerState = rememberPagerState()
 
@@ -229,6 +289,9 @@ class MainActivity : ComponentActivity() {
             pagerState.animateScrollToPage(pagerState.currentPage, /* your animation specs here */)
         }
 
+
+
+
         // 다이얼로그 표시 상태를 관리하는 MutableState
         var showDialog by remember { mutableStateOf(false) }
 
@@ -238,7 +301,7 @@ class MainActivity : ComponentActivity() {
         ) {
             HorizontalPager(
                 state = pagerState,
-                count = pageCount,
+                count = stampBoards.size,
                 contentPadding = PaddingValues(horizontal = 16.dp),
 
                 ) { page ->
@@ -279,9 +342,9 @@ class MainActivity : ComponentActivity() {
                         .clickable {
                             Log.d("ClickEvent", "Click")
                             //마지막 스탬프보드(+버튼이 있는 이미지) 스탬프 보드 추가에 사용
-                            if (page == (pageCount - 1)) {
+                            if (page == 0) {
                                 Toast
-                                    .makeText(activity, "마지막 스탬프보드 입니다", Toast.LENGTH_SHORT)
+                                    .makeText(activity, "스탬프보드 추가입니다", Toast.LENGTH_SHORT)
                                     .show()
                             } else {
                                 // 이미지 카드 클릭 Dialog 동작
@@ -303,9 +366,9 @@ class MainActivity : ComponentActivity() {
                             Image(
                                 modifier = Modifier.fillMaxSize(),
                                 painter = rememberImagePainter(
-                                    data = when {
-                                        frontImageUrls[page] == "last" -> R.drawable.blank
-                                        else -> frontImageUrls[page]
+                                    data = when (stampBoards[page].businessNumber) {
+                                        "last" -> R.drawable.blank
+                                        else -> stampBoards[page].frontImage
                                     }
                                 ),
                                 contentDescription = "스탬프 보드 메인",
@@ -354,7 +417,7 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image( // 이미지를 표시합니다.
-                            painter = rememberImagePainter(data = backImageUrls[currentPage]),
+                            painter = rememberImagePainter(data = stampBoards[currentPage].backImage),
                             contentDescription = "스탬프 보드 내용",
                             modifier = Modifier.fillMaxWidth(),
                             contentScale = ContentScale.Crop
