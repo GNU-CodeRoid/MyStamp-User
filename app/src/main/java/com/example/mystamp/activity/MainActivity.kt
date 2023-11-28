@@ -18,6 +18,7 @@
 @file:Suppress("DEPRECATION")
 package com.example.mystamp.activity
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -70,7 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
 import coil.compose.rememberImagePainter
-import com.example.mystamp.QRHelper
+import com.example.mystamp.utils.QRHelper
 import com.example.mystamp.R
 import com.example.mystamp.dto.StampBoard
 import com.example.mystamp.ui.theme.MyStampTheme
@@ -116,6 +117,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     override fun onDestroy() {
         qrCodeData = null // Reset qrCodeData to null or an appropriate default value
