@@ -1,4 +1,4 @@
-package com.example.mystamp
+package com.example.mystamp.utils
 
 import android.app.Activity
 import com.google.zxing.integration.android.IntentIntegrator

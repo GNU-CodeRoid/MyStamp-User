@@ -1,10 +1,10 @@
 package com.example.mystamp.activity
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,14 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mystamp.ui.theme.MyStampTheme
 
-class RegisterActivity : ComponentActivity() {
+class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -42,7 +39,7 @@ class RegisterActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RegistrationScreen()
+                    LoginScreen()
                 }
             }
         }
@@ -51,10 +48,8 @@ class RegisterActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RegistrationScreen() {
-    var userName by remember { mutableStateOf("") }
+private fun LoginScreen() {
     var phoneNumber by remember { mutableStateOf("") }
-
 
     val activity = LocalContext.current as Activity
 
@@ -64,7 +59,7 @@ private fun RegistrationScreen() {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("회원 등록")
+        Text("마이 스탬프")
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = phoneNumber,
@@ -72,17 +67,18 @@ private fun RegistrationScreen() {
             label = { Text("전화번호") },
         )
 
-        OutlinedTextField(
-            value = userName,
-            onValueChange = { userName = it },
-            label = { Text("이름") }
-        )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { register(activity) },
+            onClick = { login(activity) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("가입하기")
+            Text("로그인")
+        }
+        Button(
+            onClick = { toRegister(activity) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("회원가입")
         }
     }
 }
@@ -91,10 +87,17 @@ private fun RegistrationScreen() {
 @Composable
 private fun RegistrationScreenPreview() {
     MyStampTheme {
-        RegistrationScreen()
+        LoginScreen()
     }
 }
 
-private fun register(activity: Activity){
+private fun login(activity: Activity){
     activity.finish()
+    val intent = Intent(activity, MainActivity::class.java)
+    activity.startActivity(intent)
+}
+
+private fun toRegister(activity: Activity){
+    val intent = Intent(activity, RegisterActivity::class.java)
+    activity.startActivity(intent)
 }
