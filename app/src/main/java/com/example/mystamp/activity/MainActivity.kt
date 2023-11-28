@@ -111,7 +111,6 @@ class MainActivity : ComponentActivity() {
             stampBoards = frontImageUrls.map { StampBoard(stampCount = 0, image = it, 15,0,0,0) }
             MyStampTheme {
                 Surface {
-                    NavigateToRegisterActivity()
                     Screen()
                 }
             }
@@ -122,12 +121,6 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         qrCodeData = null // Reset qrCodeData to null or an appropriate default value
         super.onDestroy()
-    }
-
-    @Composable
-    private fun NavigateToRegisterActivity() {
-        val intent = Intent(this, RegisterActivity::class.java)
-        startActivity(intent)
     }
 
 

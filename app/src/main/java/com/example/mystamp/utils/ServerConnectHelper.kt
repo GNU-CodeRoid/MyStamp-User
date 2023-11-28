@@ -53,12 +53,6 @@ class ServerConnectHelper {
      */
 
 
-
-
-
-
-
-
     /**
      * retrofit api 인터페이스
      */
