@@ -2,7 +2,11 @@ package com.example.mystamp.utils
 
 
 import android.util.Log
+import com.example.mystamp.dto.RequestLoginData
+import android.util.Log
 import com.example.mystamp.dto.ShopData
+import com.example.mystamp.dto.StampBoard
+import com.google.gson.GsonBuilder
 import com.example.mystamp.dto.RequestAddStampData
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -13,6 +17,8 @@ import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -28,6 +34,7 @@ class ServerConnectHelper {
     private var requestStampBoard: RequestStampBoard? = null
     var requestStampBoards: RequestStampBoards? = null
     var requestAddStamp: RequestAddStamp? = null
+    var requestLogin: RequestLogin? = null
 
 
     init {
@@ -40,9 +47,12 @@ class ServerConnectHelper {
 
         val gson = GsonBuilder().setLenient().create()
 
+        var gson= GsonBuilder().setLenient().create()
         val retrofit = Retrofit.Builder()
             .baseUrl("http://203.232.193.177:8080/")
             .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(ScalarsConverterFactory.create())
             .client(okHttpClient)  // 여기에 추가
             .build()
 
@@ -136,6 +146,35 @@ class ServerConnectHelper {
     }
 
 
+    fun postLogin(phoneNumber: RequestLoginData) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+
+
+                val call = apiService.postLogin(phoneNumber)
+                val response = call.execute()
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        Log.d("LoginResponse", "success")
+                        requestLogin!!.onSuccess(response.body()!!)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Log.d("LoginResponse", "else")
+                        requestLogin!!.onFailure()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Log.e("LoginResponse", "$e")
+                    requestLogin?.onFailure()
+                }
+            }
+        }
+    }
+
+
+
     /**
      * retrofit api 인터페이스
      */
@@ -154,6 +193,12 @@ class ServerConnectHelper {
         @POST("stamp")
         fun addStamp(
             @Body requestAddStampData: RequestAddStampData
+        ): Call<String>
+
+
+        @POST("user/login")
+        fun postLogin(
+            @Body requestLoginData: RequestLoginData
         ): Call<String>
 
 
@@ -177,6 +222,12 @@ class ServerConnectHelper {
 
     interface RequestAddStamp {
         fun onSuccess(message: String)
+        fun onFailure()
+
+    }
+
+    interface RequestLogin {
+        fun onSuccess(data: String)
         fun onFailure()
 
     }

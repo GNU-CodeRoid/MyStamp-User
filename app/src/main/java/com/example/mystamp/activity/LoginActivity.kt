@@ -3,6 +3,7 @@ package com.example.mystamp.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -27,7 +28,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.mystamp.dto.RequestLoginData
+import com.example.mystamp.dto.ShopData
 import com.example.mystamp.ui.theme.MyStampTheme
+import com.example.mystamp.utils.ServerConnectHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +80,7 @@ private fun LoginScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { login(activity) },
+            onClick = { login(activity, phoneNumber) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("로그인")
@@ -92,10 +102,35 @@ private fun LoginScreenPreview() {
     }
 }
 
-private fun login(activity: Activity){
-    activity.finish()
-    val intent = Intent(activity, MainActivity::class.java)
-    activity.startActivity(intent)
+private fun login(activity: Activity, phoneNumber: String) {
+    // Start a coroutine to perform the login operation
+    CoroutineScope(Dispatchers.Main).launch {
+        // Call the suspend function within the coroutine scope
+        performLogin(activity, phoneNumber)
+    }
+}
+
+// Suspend function to perform the login operation
+private fun performLogin(activity: Activity, phoneNumber: String) {
+    val serverConnectHelper = ServerConnectHelper()
+    serverConnectHelper.requestLogin = object : ServerConnectHelper.RequestLogin {
+        override fun onSuccess(data: String) {
+            // Handle successful login response
+            Log.d("LoginResponse", "Received data: $data")
+
+            activity.finish()
+            val intent = Intent(activity, MainActivity::class.java)
+            activity.startActivity(intent)
+        }
+
+        override fun onFailure() {
+            // Handle login failure
+            Log.e("LoginResponse", "Failed to receive data")
+            // Add handling for login failure here if needed
+        }
+    }
+    var requestLoginData = RequestLoginData(phoneNumber)
+    serverConnectHelper.postLogin(requestLoginData)
 }
 
 private fun toRegister(activity: Activity){
