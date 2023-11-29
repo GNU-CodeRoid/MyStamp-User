@@ -138,12 +138,9 @@ class RegisterActivity : ComponentActivity() {
                     Toast.makeText(activity, "가입에 실패하였습니다", Toast.LENGTH_SHORT).show()
                 }
             }
-            var requestRegisterData = RequestRegisterData(name, phoneNumber)
+            val requestRegisterData = RequestRegisterData(name, phoneNumber)
             serverConnectHelper.postRegister(requestRegisterData)
         }
     }
 
-//private fun register(activity: Activity){
-//    activity.finish()
-//}
 }

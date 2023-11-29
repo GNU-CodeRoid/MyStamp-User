@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mystamp.AppManager
 import com.example.mystamp.dto.ShopData
 import com.example.mystamp.dto.StampBoard
 import com.example.mystamp.utils.ServerConnectHelper
@@ -65,7 +66,7 @@ class MainViewModel : ViewModel() {
                                     continuation.resume(emptyList())
                                 }
                             }
-                        serverConnectHelper.getStampBoards("01099716737")
+                        serverConnectHelper.getStampBoards(AppManager.getUid()!!)
                     }
                 }
 

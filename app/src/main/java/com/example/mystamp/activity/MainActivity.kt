@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
 import coil.compose.rememberImagePainter
+import com.example.mystamp.AppManager
 import com.example.mystamp.utils.QRHelper
 import com.example.mystamp.R
 import com.example.mystamp.dto.RequestAddStampData
@@ -142,7 +143,7 @@ class MainActivity : ComponentActivity() {
 
             }
 
-            val requestAddStampData = RequestAddStampData(scannedContent,"01099716737")
+            val requestAddStampData = RequestAddStampData(scannedContent,AppManager.getUid()!!)
             serverConnectHelper.addStamp(requestAddStampData)
 
         }
@@ -308,9 +309,7 @@ class MainActivity : ComponentActivity() {
                             Log.d("ClickEvent", "Click")
                             //마지막 스탬프보드(+버튼이 있는 이미지) 스탬프 보드 추가에 사용
                             if (page == stampBoards.size - 1) {
-                                Toast
-                                    .makeText(activity, "스탬프보드 추가입니다", Toast.LENGTH_SHORT)
-                                    .show()
+                                qrHelper.scanQRCode()
                             } else {
                                 // 이미지 카드 클릭 Dialog 동작
                                 showDialog = true
@@ -414,7 +413,7 @@ class MainActivity : ComponentActivity() {
 
                                 }
 
-                                serverConnectHelper.deleteStamp("01099716737",stampBoards[currentPage].businessNumber)
+                                serverConnectHelper.deleteStamp(AppManager.getUid()!!,stampBoards[currentPage].businessNumber)
 
 
 

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.mystamp.AppManager
 import com.example.mystamp.dto.RequestLoginData
 import com.example.mystamp.dto.ShopData
 import com.example.mystamp.ui.theme.MyStampTheme
@@ -110,6 +111,7 @@ private fun login(activity: Activity, phoneNumber: String) {
             override fun onSuccess(data: String) {
                 Log.d("LoginResponse", "Received data: $data")
                 if (data.contains("login success")) {
+                    AppManager.setUid(phoneNumber)
                     Toast.makeText(activity, "로그인에 성공하였습니다", Toast.LENGTH_SHORT).show()
                     activity.finish()
                     val intent = Intent(activity, MainActivity::class.java)
@@ -124,7 +126,7 @@ private fun login(activity: Activity, phoneNumber: String) {
                 Log.e("LoginResponse", "Failed to receive data")
             }
         }
-        var requestLoginData = RequestLoginData(phoneNumber)
+        val requestLoginData = RequestLoginData(phoneNumber)
         serverConnectHelper.postLogin(requestLoginData)
     }
 }
