@@ -3,6 +3,7 @@ package com.example.mystamp.utils
 
 import android.util.Log
 import com.example.mystamp.dto.RequestLoginData
+import com.example.mystamp.dto.RequestRegisterData
 import com.example.mystamp.dto.ShopData
 import com.example.mystamp.dto.StampBoard
 import com.google.gson.GsonBuilder
@@ -32,6 +33,7 @@ class ServerConnectHelper {
     var requestStampBoards: RequestStampBoards? = null
     var requestAddStamp: RequestAddStamp? = null
     var requestLogin: RequestLogin? = null
+    var requestRegister: RequestRegister? = null
 
 
     init {
@@ -66,9 +68,7 @@ class ServerConnectHelper {
 
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {
-
                         requestStampBoard!!.onSuccess(response.body()!!)
-
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -98,7 +98,7 @@ class ServerConnectHelper {
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        requestStampBoards?.onFailure()
+                        requestStampBoards!!.onFailure()
                     }
                 }
             }catch (e: Exception){
@@ -141,33 +141,52 @@ class ServerConnectHelper {
     }
 
 
-    fun postLogin(phoneNumber: RequestLoginData) {
+    fun postLogin(requestLoginData: RequestLoginData) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-
-
-                val call = apiService.postLogin(phoneNumber)
+                val call = apiService.postLogin(requestLoginData)
                 val response = call.execute()
+
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {
-                        Log.d("LoginResponse", "success")
                         requestLogin!!.onSuccess(response.body()!!)
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Log.d("LoginResponse", "else")
                         requestLogin!!.onFailure()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Log.e("LoginResponse", "$e")
                     requestLogin?.onFailure()
                 }
             }
         }
     }
 
+
+    fun postRegister(requestRegisterData: RequestRegisterData) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val call = apiService.postRegister(requestRegisterData)
+                val response = call.execute()
+
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        requestRegister!!.onSuccess(response.body()!!)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        requestRegister!!.onFailure()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    requestRegister?.onFailure()
+                }
+            }
+        }
+    }
 
 
     /**
@@ -196,6 +215,10 @@ class ServerConnectHelper {
             @Body requestLoginData: RequestLoginData
         ): Call<String>
 
+        @POST("user/signup")
+        fun postRegister(
+            @Body requestRegisterData: RequestRegisterData
+        ): Call<String>
 
 
     }
@@ -222,6 +245,12 @@ class ServerConnectHelper {
     }
 
     interface RequestLogin {
+        fun onSuccess(data: String)
+        fun onFailure()
+
+    }
+
+    interface RequestRegister {
         fun onSuccess(data: String)
         fun onFailure()
 
