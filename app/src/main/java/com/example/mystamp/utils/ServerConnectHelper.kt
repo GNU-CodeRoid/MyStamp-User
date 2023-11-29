@@ -3,12 +3,10 @@ package com.example.mystamp.utils
 
 import android.util.Log
 import com.example.mystamp.dto.RequestLoginData
-import android.util.Log
 import com.example.mystamp.dto.ShopData
 import com.example.mystamp.dto.StampBoard
 import com.google.gson.GsonBuilder
 import com.example.mystamp.dto.RequestAddStampData
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +16,6 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import retrofit2.http.Body
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -47,12 +44,10 @@ class ServerConnectHelper {
 
         val gson = GsonBuilder().setLenient().create()
 
-        var gson= GsonBuilder().setLenient().create()
         val retrofit = Retrofit.Builder()
             .baseUrl("http://203.232.193.177:8080/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addConverterFactory(GsonConverterFactory.create(gson))
             .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)  // 여기에 추가
             .build()
 
