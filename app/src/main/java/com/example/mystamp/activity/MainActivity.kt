@@ -79,6 +79,7 @@ import com.example.mystamp.utils.QRHelper
 import com.example.mystamp.R
 import com.example.mystamp.dto.ShopData
 import com.example.mystamp.dto.StampBoard
+import com.example.mystamp.dto.RequestAddStampData
 import com.example.mystamp.ui.theme.MyStampTheme
 import com.example.mystamp.utils.ServerConnectHelper
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -98,7 +99,7 @@ class MainActivity : ComponentActivity() {
 
     private var scanComplete = false
     private var qrCodeData: String? = null
-
+    private val serverConnectHelper = ServerConnectHelper()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -129,7 +130,6 @@ class MainActivity : ComponentActivity() {
         val basicStampBoard = StampBoard(businessNumber = "last")
         return try {
 
-            val serverConnectHelper = ServerConnectHelper()
             val data: List<ShopData> = withContext(Dispatchers.IO) {
                 suspendCancellableCoroutine { continuation ->
                     serverConnectHelper.requestStampBoards = object : ServerConnectHelper.RequestStampBoards {
@@ -155,7 +155,10 @@ class MainActivity : ComponentActivity() {
                     stampCount = datum.count
                     businessNumber = datum.shopId.businessNumber
                     maxCount = datum.shopId.stampLimit
+
+                    Log.d("test","사업자번호: ${datum.shopId.businessNumber}")
                 }
+
             }
 
             // 통신이 성공하든 실패하든 비어있다면 기본데이터 추가
@@ -246,6 +249,20 @@ class MainActivity : ComponentActivity() {
                 Log.d("QRCodeScan", "스캔한 QR 코드 데이터: $qrCodeData")
 
                 scanComplete = true
+
+                serverConnectHelper.requestAddStamp = object : ServerConnectHelper.RequestAddStamp{
+                    override fun onSuccess(message: String) {
+                        Log.d("test",message)
+                    }
+
+                    override fun onFailure() {
+                        Log.d("test","실패")
+                    }
+
+                }
+
+                val requestAddStampData = RequestAddStampData(qrCodeData.toString(),"01099716737")
+                serverConnectHelper.addStamp(requestAddStampData)
 
 
                 // QR 코드로 스캔된 링크를 열기 위해 Intent를 생성합니다.
@@ -439,52 +456,50 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-
-                if (scanComplete) { // 스캔이 완료되었는지 확인합니다.
-                    // 스탬프 수를 증가시키고 조건에 따라 디스플레이를 업데이트합니다.
-
-
-                    if(stampBoards[currentPage].stampCount == stampBoards[currentPage].maxCount){
-                        Toast.makeText(this, "스탬프를 모두 채웠습니다", Toast.LENGTH_SHORT).show()
-                    }else{
-                        stampBoards[currentPage].stampCount += 1
-                        Toast.makeText(this, "스탬프가 적립되었습니다.", Toast.LENGTH_SHORT).show()
-                    }
-
-                    when {
-                        stampBoards[currentPage].stampCount < 5 -> {
-                            stampBoards[currentPage].lineCount1 += 1
-                        }
-                        stampBoards[currentPage].stampCount < 10 -> {
-                            stampBoards[currentPage].lineCount2 += 1
-                        }
-                        stampBoards[currentPage].stampCount < 15 -> {
-                            stampBoards[currentPage].lineCount3 += 1
-                        }
-                        else -> {
-
-                        }
-                    }
-                }
-
-
+                Log.d("test",stampBoards[currentPage].stampCount.toString())
                 // 수에 따라 스탬프를 표시합니다.
 
-                Stamping(stampBoards[currentPage].lineCount1,35,30)
-                if (stampBoards[currentPage].stampCount > 5) { // 스탬프 수가 5를 초과하는지 확인합니다.
-                    Stamping(stampBoards[currentPage].lineCount2,80,30)
-                }
-                if (stampBoards[currentPage].stampCount > 10) {
-                    Stamping(stampBoards[currentPage].lineCount3,125,30)
-                }
+                DrawStampLines(stampBoards[currentPage].stampCount, 35, 30)
 
-                scanComplete = false // 다음 반복을 위해 scanComplete 플래그를 재설정합니다.
+
+
+
             }
+        }
+        if (scanComplete) { // 스캔이 완료되었는지 확인합니다.
+            // 스탬프 수를 증가시키고 조건에 따라 디스플레이를 업데이트합니다.
+
+            if(stampBoards[currentPage].stampCount == stampBoards[currentPage].maxCount){
+                Toast.makeText(this, "스탬프를 모두 채웠습니다", Toast.LENGTH_SHORT).show()
+            }else{
+                stampBoards[currentPage].stampCount += 1
+                Toast.makeText(this, "스탬프가 적립되었습니다.", Toast.LENGTH_SHORT).show()
+            }
+
+            scanComplete = false // 다음 반복을 위해 scanComplete 플래그를 재설정합니다.
         }
 
 
 
 
+    }
+    @Composable
+    private fun DrawStampLines(stampCount: Int, paddingTop: Int, paddingStart: Int) {
+        val stampLineCounts = listOf(5, 10,15) // Define the stamp count thresholds for each line
+        val lineCount = 5
+        stampLineCounts.forEachIndexed { index, lineThreshold ->
+            if (stampCount >= lineThreshold) {
+
+                val topPadding = paddingTop + index * 45 // Adjust the padding based on your requirements
+                Stamping(lineCount, topPadding, paddingStart)
+            }else{
+                val checkLineCount = lineCount - (lineThreshold - stampCount)
+                if(lineCount > checkLineCount){
+                    val topPadding = paddingTop + index * 45 // Adjust the padding based on your requirements
+                    Stamping(checkLineCount, topPadding, paddingStart)
+                }
+            }
+        }
     }
 
     @Composable

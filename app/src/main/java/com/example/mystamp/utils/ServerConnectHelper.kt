@@ -1,8 +1,10 @@
 package com.example.mystamp.utils
 
 
+import android.util.Log
 import com.example.mystamp.dto.ShopData
-import com.example.mystamp.dto.StampBoard
+import com.example.mystamp.dto.RequestAddStampData
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -11,7 +13,9 @@ import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
@@ -23,6 +27,7 @@ class ServerConnectHelper {
     private val apiService: ApiService
     private var requestStampBoard: RequestStampBoard? = null
     var requestStampBoards: RequestStampBoards? = null
+    var requestAddStamp: RequestAddStamp? = null
 
 
     init {
@@ -33,10 +38,11 @@ class ServerConnectHelper {
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
 
+        val gson = GsonBuilder().setLenient().create()
 
         val retrofit = Retrofit.Builder()
             .baseUrl("http://203.232.193.177:8080/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)  // 여기에 추가
             .build()
 
@@ -99,6 +105,36 @@ class ServerConnectHelper {
         }
     }
 
+    fun addStamp(requestAddStampData: RequestAddStampData){
+        CoroutineScope(Dispatchers.IO).launch {
+            try{
+                val call = apiService.addStamp(requestAddStampData)
+                val response = call.execute()
+
+
+
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+
+                        requestAddStamp!!.onSuccess(response.body()!!)
+
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        requestAddStamp!!.onFailure()
+                        Log.d("test","실패")
+                    }
+                }
+            }catch (e: Exception){
+                withContext(Dispatchers.Main) {
+                    requestAddStamp?.onFailure()
+                    Log.d("test",e.toString())
+                }
+            }
+
+        }
+    }
+
 
     /**
      * retrofit api 인터페이스
@@ -115,6 +151,19 @@ class ServerConnectHelper {
             @Query("phoneNumber") phoneNumber : String,
         ): Call<List<ShopData>>
 
+/*        @FormUrlEncoded
+        @POST("stamp")
+        fun addStamp(
+            @Field("businessNumber") businessNumber : String,
+            @Field("phoneNumber") phoneNumber : String,
+        ): Call<String>*/
+
+        @POST("stamp")
+        fun addStamp(
+            @Body requestAddStampData: RequestAddStampData
+        ): Call<String>
+
+
 
     }
 
@@ -129,6 +178,12 @@ class ServerConnectHelper {
 
     interface RequestStampBoards {
         fun onSuccess(data: List<ShopData>)
+        fun onFailure()
+
+    }
+
+    interface RequestAddStamp {
+        fun onSuccess(message: String)
         fun onFailure()
 
     }
