@@ -18,6 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -32,6 +33,7 @@ class ServerConnectHelper {
     private var requestStampBoard: RequestStampBoard? = null
     var requestStampBoards: RequestStampBoards? = null
     var requestAddStamp: RequestAddStamp? = null
+    var requestDeleteStamp: RequestDeleteStamp? = null
     var requestLogin: RequestLogin? = null
     var requestRegister: RequestRegister? = null
 
@@ -127,7 +129,7 @@ class ServerConnectHelper {
                 } else {
                     withContext(Dispatchers.Main) {
                         requestAddStamp?.onFailure()
-                        Log.d("test","실패")
+                        Log.d("test", response.errorBody()?.string().toString())
                     }
                 }
             }catch (e: Exception){
@@ -140,6 +142,31 @@ class ServerConnectHelper {
         }
     }
 
+    fun deleteStamp(phoneNumber: String, businessNumber: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try{
+                val call = apiService.deleteStamp(phoneNumber, businessNumber)
+                val response = call.execute()
+
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+
+                        requestDeleteStamp?.onSuccess(response.body()!!)
+
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        requestDeleteStamp?.onFailure()
+                    }
+                }
+            }catch (e: Exception){
+                withContext(Dispatchers.Main) {
+                    requestDeleteStamp?.onFailure()
+                }
+            }
+
+        }
+    }
 
     fun postLogin(requestLoginData: RequestLoginData) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -209,6 +236,11 @@ class ServerConnectHelper {
             @Body requestAddStampData: RequestAddStampData
         ): Call<String>
 
+        @DELETE("stamp")
+        fun deleteStamp(
+            @Query("phoneNumber") phoneNumber: String,
+            @Query("businessNumber") businessNumber : String,
+        ): Call<String>
 
         @POST("user/login")
         fun postLogin(
@@ -239,6 +271,12 @@ class ServerConnectHelper {
     }
 
     interface RequestAddStamp {
+        fun onSuccess(message: String)
+        fun onFailure()
+
+    }
+
+    interface RequestDeleteStamp {
         fun onSuccess(message: String)
         fun onFailure()
 
