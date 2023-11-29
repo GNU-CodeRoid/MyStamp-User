@@ -88,12 +88,12 @@ class ServerConnectHelper {
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {
 
-                        requestStampBoards!!.onSuccess(response.body()!!)
+                        requestStampBoards?.onSuccess(response.body()!!)
 
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        requestStampBoards!!.onFailure()
+                        requestStampBoards?.onFailure()
                     }
                 }
             }catch (e: Exception){
@@ -116,12 +116,12 @@ class ServerConnectHelper {
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {
 
-                        requestAddStamp!!.onSuccess(response.body()!!)
+                        requestAddStamp?.onSuccess(response.body()!!)
 
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        requestAddStamp!!.onFailure()
+                        requestAddStamp?.onFailure()
                         Log.d("test","실패")
                     }
                 }
@@ -150,13 +150,6 @@ class ServerConnectHelper {
         fun getStampBoards(
             @Query("phoneNumber") phoneNumber : String,
         ): Call<List<ShopData>>
-
-/*        @FormUrlEncoded
-        @POST("stamp")
-        fun addStamp(
-            @Field("businessNumber") businessNumber : String,
-            @Field("phoneNumber") phoneNumber : String,
-        ): Call<String>*/
 
         @POST("stamp")
         fun addStamp(

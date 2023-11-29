@@ -24,6 +24,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,10 +60,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,9 +90,11 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
+import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentIntegrator.parseActivityResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
@@ -97,21 +103,21 @@ import kotlin.math.absoluteValue
 class MainActivity : ComponentActivity() {
 
 
-    private var scanComplete = false
-    private var qrCodeData: String? = null
     private val serverConnectHelper = ServerConnectHelper()
+    private lateinit var qrHelper: QRHelper
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        qrCodeInit()
 
         setContent {
 
 
-
             MyStampTheme {
                 Surface {
-
 
                     Screen()
                 }
@@ -120,10 +126,27 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    private fun qrCodeInit(){
+        qrHelper = QRHelper(this){ scannedContent ->
 
-    private fun init(){
-        val stampBoard = StampBoard("last")
-        stampBoard.businessNumber = "last"
+            serverConnectHelper.requestAddStamp = object : ServerConnectHelper.RequestAddStamp{
+                override fun onSuccess(message: String) {
+                    Log.d("test",message)
+                    Toast.makeText(this@MainActivity, "스탬프 적립", Toast.LENGTH_SHORT).show()
+
+                }
+
+                override fun onFailure() {
+                    Toast.makeText(this@MainActivity, "스탬프 적립 오류.", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+
+            val requestAddStampData = RequestAddStampData(scannedContent,"01099716737")
+            serverConnectHelper.addStamp(requestAddStampData)
+
+        }
+
     }
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun fetchStampBoards(): List<StampBoard> {
@@ -173,14 +196,6 @@ class MainActivity : ComponentActivity() {
             // Handle the exception (log, report, etc.)
             listOf(basicStampBoard)
         }
-    }
-
-
-
-
-    override fun onDestroy() {
-        qrCodeData = null // Reset qrCodeData to null or an appropriate default value
-        super.onDestroy()
     }
 
 
@@ -237,65 +252,32 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val result = parseActivityResult(requestCode, resultCode, data)
-        if (result != null) {
-            if (result.contents != null) {
-                // QR 코드 데이터는 result.contents에 저장됩니다.
-                qrCodeData = result.contents
-                // QR 코드 데이터를 Toast 메시지로 표시합니다.
-                // QR 코드 데이터를 Logcat에 로깅합니다.
-                Log.d("QRCodeScan", "스캔한 QR 코드 데이터: $qrCodeData")
-
-                scanComplete = true
-
-                serverConnectHelper.requestAddStamp = object : ServerConnectHelper.RequestAddStamp{
-                    override fun onSuccess(message: String) {
-                        Log.d("test",message)
-                    }
-
-                    override fun onFailure() {
-                        Log.d("test","실패")
-                    }
-
-                }
-
-                val requestAddStampData = RequestAddStampData(qrCodeData.toString(),"01099716737")
-                serverConnectHelper.addStamp(requestAddStampData)
-
-
-                // QR 코드로 스캔된 링크를 열기 위해 Intent를 생성합니다.
-                //val intent = Intent(Intent.ACTION_VIEW, Uri.parse(qrCodeData))
-                // 생성한 Intent를 실행하여 링크를 엽니다.
-                //startActivity(intent)
-
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
-
-
-
-
 
 
     @OptIn(ExperimentalPagerApi::class)
     @Composable
     fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier,activity: Activity) {
         var stampBoards by remember { mutableStateOf(listOf<StampBoard>()) }
-        LaunchedEffect(Unit) {
+
+        var fetchStampBoardsTrigger by remember { mutableStateOf(false) }
+
+
+        LaunchedEffect(fetchStampBoardsTrigger) {
             try {
                 stampBoards = fetchStampBoards()
+                fetchStampBoardsTrigger = false
                 Log.d("StampBoards", "스탬프 보드 크기: ${stampBoards.size}")
             } catch (e: Exception) {
                 Log.e("NetworkError", "스탬프 보드 가져오기 오류", e)
             }
         }
+
+
+
         val pageCount = stampBoards.size // 이미지 리스트의 사이즈 (이 경우에는 4)
         // 현재 페이지를 기록하기 위한 pagerState
         val pagerState = rememberPagerState()
+
 
         // 현재 페이지를 추적하는 MutableState
         var currentPage by remember { mutableIntStateOf(0) }
@@ -322,6 +304,7 @@ class MainActivity : ComponentActivity() {
                 contentPadding = PaddingValues(horizontal = 16.dp),
 
                 ) { page ->
+
 
                 Card(
                     Modifier
@@ -441,7 +424,8 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
                         Button( // QR 코드를 스캔하기 위한 버튼입니다.
                             onClick = {
-                                QRHelper.scanQRCode(activity)
+                                qrHelper.scanQRCode()
+
                                 showDialog = false // 대화 상자를 닫기 위해 showDialog를 false로 설정합니다.
 
                             },
@@ -466,23 +450,11 @@ class MainActivity : ComponentActivity() {
 
             }
         }
-        if (scanComplete) { // 스캔이 완료되었는지 확인합니다.
-            // 스탬프 수를 증가시키고 조건에 따라 디스플레이를 업데이트합니다.
-
-            if(stampBoards[currentPage].stampCount == stampBoards[currentPage].maxCount){
-                Toast.makeText(this, "스탬프를 모두 채웠습니다", Toast.LENGTH_SHORT).show()
-            }else{
-                stampBoards[currentPage].stampCount += 1
-                Toast.makeText(this, "스탬프가 적립되었습니다.", Toast.LENGTH_SHORT).show()
-            }
-
-            scanComplete = false // 다음 반복을 위해 scanComplete 플래그를 재설정합니다.
-        }
-
-
 
 
     }
+
+
     @Composable
     private fun DrawStampLines(stampCount: Int, paddingTop: Int, paddingStart: Int) {
         val stampLineCounts = listOf(5, 10,15) // Define the stamp count thresholds for each line
