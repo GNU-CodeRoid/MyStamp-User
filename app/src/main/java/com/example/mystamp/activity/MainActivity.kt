@@ -350,7 +350,6 @@ class MainActivity : ComponentActivity() {
                                 // 이미지 카드 클릭 Dialog 동작
                                 showDialog = true
 
-
                             }
 
 

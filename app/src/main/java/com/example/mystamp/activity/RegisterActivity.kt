@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -71,13 +72,15 @@ class RegisterActivity : ComponentActivity() {
         ) {
             Text("회원 등록")
             Spacer(modifier = Modifier.height(16.dp))
-            TextField(
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
                 value = phoneNumber,
                 onValueChange = { phoneNumber = it },
                 label = { Text("전화번호") }
             )
 
-            TextField(
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
                 value = userName,
                 onValueChange = { userName = it },
                 label = { Text("이름") },

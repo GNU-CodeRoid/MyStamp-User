@@ -62,6 +62,7 @@ private fun LoginScreen() {
         Text("마이 스탬프")
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
             value = phoneNumber,
             onValueChange = { phoneNumber = it },
             label = { Text("전화번호") },
