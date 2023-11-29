@@ -6,6 +6,9 @@ data class StampBoard(
     @SerializedName("businessNumber")
     var businessNumber: String,
 
+    @SerializedName("shop_name")
+    var shopName: String,
+
     @SerializedName("count")
     var stampCount: Int,
 
@@ -22,7 +25,8 @@ data class StampBoard(
 
     var lineCount3: Int
 ){
-    constructor(businessNumber: String) : this(businessNumber,0,"","",0,0,0,0)
+    constructor(businessNumber: String,shopName: String) : this(businessNumber,shopName,0,"","",0,0,0,0)
+    constructor() : this("","",0,"","",0,0,0,0)
 }
 
 
