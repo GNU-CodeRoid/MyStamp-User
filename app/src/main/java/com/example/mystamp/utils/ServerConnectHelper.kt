@@ -3,6 +3,7 @@ package com.example.mystamp.utils
 
 import android.util.Log
 import com.example.mystamp.dto.RequestLoginData
+import com.example.mystamp.dto.RequestRegisterData
 import com.example.mystamp.dto.ShopData
 import com.example.mystamp.dto.StampBoard
 import com.google.gson.GsonBuilder
@@ -30,6 +31,7 @@ class ServerConnectHelper {
     private var requestStampBoard: RequestStampBoard? = null
     var requestStampBoards: RequestStampBoards? = null
     var requestLogin: RequestLogin? = null
+    var requestRegister: RequestRegister? = null
 
 
     init {
@@ -43,8 +45,8 @@ class ServerConnectHelper {
         var gson= GsonBuilder().setLenient().create()
         val retrofit = Retrofit.Builder()
             .baseUrl("http://203.232.193.177:8080/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
             .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)  // 여기에 추가
             .build()
 
@@ -63,9 +65,7 @@ class ServerConnectHelper {
 
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {
-
                         requestStampBoard!!.onSuccess(response.body()!!)
-
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -89,9 +89,7 @@ class ServerConnectHelper {
 
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {
-
                         requestStampBoards!!.onSuccess(response.body()!!)
-
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -108,33 +106,52 @@ class ServerConnectHelper {
     }
 
 
-    fun postLogin(phoneNumber: RequestLoginData) {
+    fun postLogin(requestLoginData: RequestLoginData) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-
-
-                val call = apiService.postLogin(phoneNumber)
+                val call = apiService.postLogin(requestLoginData)
                 val response = call.execute()
+
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {
-                        Log.d("LoginResponse", "success")
                         requestLogin!!.onSuccess(response.body()!!)
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Log.d("LoginResponse", "else")
                         requestLogin!!.onFailure()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Log.e("LoginResponse", "$e")
                     requestLogin?.onFailure()
                 }
             }
         }
     }
 
+
+    fun postRegister(requestRegisterData: RequestRegisterData) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val call = apiService.postRegister(requestRegisterData)
+                val response = call.execute()
+
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        requestRegister!!.onSuccess(response.body()!!)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        requestRegister!!.onFailure()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    requestRegister?.onFailure()
+                }
+            }
+        }
+    }
 
 
     /**
@@ -157,6 +174,10 @@ class ServerConnectHelper {
             @Body requestLoginData: RequestLoginData
         ): Call<String>
 
+        @POST("user/signup")
+        fun postRegister(
+            @Body requestRegisterData: RequestRegisterData
+        ): Call<String>
 
 
     }
@@ -177,6 +198,12 @@ class ServerConnectHelper {
     }
 
     interface RequestLogin {
+        fun onSuccess(data: String)
+        fun onFailure()
+
+    }
+
+    interface RequestRegister {
         fun onSuccess(data: String)
         fun onFailure()
 

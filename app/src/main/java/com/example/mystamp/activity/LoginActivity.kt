@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -103,35 +104,31 @@ private fun LoginScreenPreview() {
 }
 
 private fun login(activity: Activity, phoneNumber: String) {
-    // Start a coroutine to perform the login operation
     CoroutineScope(Dispatchers.Main).launch {
-        // Call the suspend function within the coroutine scope
-        performLogin(activity, phoneNumber)
+        val serverConnectHelper = ServerConnectHelper()
+        serverConnectHelper.requestLogin = object : ServerConnectHelper.RequestLogin {
+            override fun onSuccess(data: String) {
+                Log.d("LoginResponse", "Received data: $data")
+                if (data.contains("login success")) {
+                    Toast.makeText(activity, "로그인에 성공하였습니다", Toast.LENGTH_SHORT).show()
+                    activity.finish()
+                    val intent = Intent(activity, MainActivity::class.java)
+                    activity.startActivity(intent)
+                } else {
+                    Toast.makeText(activity, "로그인에 실패하였습니다", Toast.LENGTH_SHORT).show()
+                    Log.e("LoginResponse", "Failed to login")
+                }
+            }
+            override fun onFailure() {
+                Toast.makeText(activity, "로그인에 실패하였습니다", Toast.LENGTH_SHORT).show()
+                Log.e("LoginResponse", "Failed to receive data")
+            }
+        }
+        var requestLoginData = RequestLoginData(phoneNumber)
+        serverConnectHelper.postLogin(requestLoginData)
     }
 }
 
-// Suspend function to perform the login operation
-private fun performLogin(activity: Activity, phoneNumber: String) {
-    val serverConnectHelper = ServerConnectHelper()
-    serverConnectHelper.requestLogin = object : ServerConnectHelper.RequestLogin {
-        override fun onSuccess(data: String) {
-            // Handle successful login response
-            Log.d("LoginResponse", "Received data: $data")
-
-            activity.finish()
-            val intent = Intent(activity, MainActivity::class.java)
-            activity.startActivity(intent)
-        }
-
-        override fun onFailure() {
-            // Handle login failure
-            Log.e("LoginResponse", "Failed to receive data")
-            // Add handling for login failure here if needed
-        }
-    }
-    var requestLoginData = RequestLoginData(phoneNumber)
-    serverConnectHelper.postLogin(requestLoginData)
-}
 
 private fun toRegister(activity: Activity){
     val intent = Intent(activity, RegisterActivity::class.java)
