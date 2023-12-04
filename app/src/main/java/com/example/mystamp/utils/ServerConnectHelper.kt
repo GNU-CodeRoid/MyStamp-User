@@ -8,6 +8,7 @@ import com.example.mystamp.dto.ShopData
 import com.example.mystamp.dto.StampBoard
 import com.google.gson.GsonBuilder
 import com.example.mystamp.dto.RequestAddStampData
+import com.example.mystamp.dto.RequestUserData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,6 +37,7 @@ class ServerConnectHelper {
     var requestDeleteStamp: RequestDeleteStamp? = null
     var requestLogin: RequestLogin? = null
     var requestRegister: RequestRegister? = null
+    var userDataRequest: UserDataRequest? = null
 
 
     init {
@@ -86,6 +88,35 @@ class ServerConnectHelper {
         }
     }
 
+    fun getUserData(phoneNumber: String){
+        CoroutineScope(Dispatchers.IO).launch {
+            try{
+                val call = apiService.getUserData(phoneNumber)
+                val response = call.execute()
+
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+
+                        userDataRequest?.onSuccess(response.body()!!)
+                        Log.d("test", "성공")
+
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        userDataRequest!!.onFailure()
+                        Log.d("test", response.errorBody()?.string().toString())
+                    }
+                }
+            }catch (e: Exception){
+                withContext(Dispatchers.Main) {
+                    userDataRequest?.onFailure()
+                    Log.d("test", e.toString())
+                }
+            }
+
+        }
+    }
+
     fun getStampBoards(phoneNumber: String){
         CoroutineScope(Dispatchers.IO).launch {
             try{
@@ -96,16 +127,19 @@ class ServerConnectHelper {
                     withContext(Dispatchers.Main) {
 
                         requestStampBoards?.onSuccess(response.body()!!)
+                        Log.d("test", "성공")
 
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         requestStampBoards!!.onFailure()
+                        Log.d("test", response.errorBody()?.string().toString())
                     }
                 }
             }catch (e: Exception){
                 withContext(Dispatchers.Main) {
                     requestStampBoards?.onFailure()
+                    Log.d("test", e.toString())
                 }
             }
 
@@ -252,6 +286,11 @@ class ServerConnectHelper {
             @Body requestRegisterData: RequestRegisterData
         ): Call<String>
 
+        @GET("user")
+        fun getUserData(
+            @Query("phoneNumber") phoneNumber: String
+        ): Call<RequestUserData>
+
 
     }
 
@@ -262,6 +301,11 @@ class ServerConnectHelper {
         fun onSuccess(shopData: ShopData)
         fun onFailure()
 
+    }
+
+    interface UserDataRequest {
+        fun onSuccess(userData: RequestUserData)
+        fun onFailure()
     }
 
     interface RequestStampBoards {
