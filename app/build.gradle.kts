@@ -53,6 +53,10 @@ android {
 
 dependencies {
 
+    // DataStore (자동 로그인 관련)
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-core:1.0.0")
+
     // QR Code scan
     implementation("com.journeyapps:zxing-android-embedded:4.1.0")
     implementation("com.google.zxing:core:3.4.0")
@@ -64,7 +68,6 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.2")
 
     // jetpack compose
-
     implementation("androidx.activity:activity-compose:1.8.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.compose.ui:ui:1.6.0-alpha08")
