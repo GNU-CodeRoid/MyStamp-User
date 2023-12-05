@@ -33,6 +33,7 @@ import com.example.mystamp.AppManager
 import com.example.mystamp.dto.RequestLoginData
 import com.example.mystamp.dto.ShopData
 import com.example.mystamp.ui.theme.MyStampTheme
+import com.example.mystamp.utils.AutoLogin
 import com.example.mystamp.utils.ServerConnectHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -111,6 +112,12 @@ private fun login(activity: Activity, phoneNumber: String) {
             override fun onSuccess(data: String) {
                 Log.d("LoginResponse", "Received data: $data")
                 if (data.contains("login success")) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        // 로그인 성공 시 DataStore에 저장
+                        val autoLogin = AutoLogin(activity)
+                        autoLogin.savePhoneNumber(phoneNumber) // 전화번호 저장
+                        autoLogin.saveLoginStatus(true) // 로그인 상태를 true로 저장
+                    }
                     AppManager.setUid(phoneNumber)
                     Toast.makeText(activity, "로그인에 성공하였습니다", Toast.LENGTH_SHORT).show()
                     activity.finish()

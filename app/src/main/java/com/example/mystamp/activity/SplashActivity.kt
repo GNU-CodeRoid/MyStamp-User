@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +33,11 @@ import androidx.compose.ui.unit.sp
 import com.example.mystamp.AppManager
 import com.example.mystamp.R
 import com.example.mystamp.ui.theme.MyStampTheme
+import com.example.mystamp.utils.AutoLogin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
@@ -48,7 +55,6 @@ class SplashActivity : ComponentActivity() {
                 }
             }
         }
-
     }
 
 
@@ -88,24 +94,42 @@ class SplashActivity : ComponentActivity() {
 
     private fun init() {
         AppManager.init(applicationContext)
-        if (AppManager.getStartInit() == true) {
+        if (isLoggedIn()) { // 사용자가 로그인되어 있는지 확인
             Handler(Looper.getMainLooper()).postDelayed({
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-
-            }, 1000)
-        } else {
-            Handler(Looper.getMainLooper()).postDelayed({
-                AppManager.startInit()
+                CoroutineScope(Dispatchers.IO).launch {
+                    val autoLogin = AutoLogin(applicationContext)
+                    val phoneNumber = autoLogin.getPhoneNumber()
+                    phoneNumber?.let { AppManager.setUid(it) }
+                }
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
-
             }, 1000)
+        } else {
+            if (AppManager.getStartInit() == true) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }, 1000)
+            }
         }
     }
 
-
+    private fun isLoggedIn(): Boolean {
+        val autoLogin = AutoLogin(applicationContext)
+        return runBlocking {
+            autoLogin.getLoginStatus()
+        }
+    }
 }
 
 
+
+
+//else {
+//    Handler(Looper.getMainLooper()).postDelayed({
+//        AppManager.startInit()
+//        startActivity(Intent(this, MainActivity::class.java)) // 로그인되지 않았을 경우 기본적으로 MainActivity로 이동
+//        finish()
+//    }, 1000)
+//}
 

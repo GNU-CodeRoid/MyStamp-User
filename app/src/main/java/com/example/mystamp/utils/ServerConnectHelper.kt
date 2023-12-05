@@ -159,19 +159,19 @@ class ServerConnectHelper {
                     withContext(Dispatchers.Main) {
 
                         userDataRequest?.onSuccess(response.body()!!)
-                        Log.d("test", "성공")
+                        Log.d("getUserData", "성공")
 
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         userDataRequest!!.onFailure()
-                        Log.d("test", response.errorBody()?.string().toString())
+                        Log.d("getUserData", response.errorBody()?.string().toString())
                     }
                 }
             }catch (e: Exception){
                 withContext(Dispatchers.Main) {
                     userDataRequest?.onFailure()
-                    Log.d("test", e.toString())
+                    Log.d("getUserData", e.toString())
                 }
             }
 
