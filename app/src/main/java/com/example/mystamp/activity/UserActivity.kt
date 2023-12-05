@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,15 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,22 +34,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mystamp.R
-import com.example.mystamp.ui.theme.AnchorGray
 import com.example.mystamp.ui.theme.Cream
-import androidx.compose.ui.unit.dp
 import com.example.mystamp.ui.theme.MyStampTheme
-import com.example.mystamp.ui.theme.SubYellow1
-import com.example.mystamp.ui.theme.SubYellow2
-import com.example.mystamp.ui.theme.SubYellow3
-import com.example.mystamp.viewmodel.CouponViewModel
-import com.example.mystamp.viewmodel.UserViewModel
 import com.example.mystamp.utils.AutoLogin
-import com.example.mystamp.utils.ServerConnectHelper
+import com.example.mystamp.viewmodel.UserViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 
 class UserActivity : ComponentActivity() {
     private val _viewModel = UserViewModel()
@@ -64,7 +52,6 @@ class UserActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-
                     UserScreen()
                 }
             }
@@ -73,9 +60,6 @@ class UserActivity : ComponentActivity() {
 
     @Composable
     fun ProfileCard(
-        modifier: Modifier = Modifier,
-        name: String,
-        phoneNumber: String,
         profileImageRes: Int
     ) {
 
@@ -98,7 +82,7 @@ class UserActivity : ComponentActivity() {
                     .padding(8.dp)
             ) {
                 Row(
-                    modifier = modifier
+                    modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(8.dp)
                         .clip(MaterialTheme.shapes.medium)
@@ -177,7 +161,7 @@ class UserActivity : ComponentActivity() {
 
 
     @Composable
-    private fun UserScreen() {
+    private fun UserContent(){
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -192,6 +176,13 @@ class UserActivity : ComponentActivity() {
                 // 버튼에 로그아웃 텍스트 추가
                 Text("로그아웃")
             }
+        }
+    }
+    @Composable
+    private fun UserScreen() {
+        Column {
+            ProfileCard(R.drawable.stamp_image)
+            UserContent()
         }
 
     }

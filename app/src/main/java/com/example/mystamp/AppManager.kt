@@ -13,17 +13,9 @@ object AppManager {
             "UserPrefs",
             ComponentActivity.MODE_PRIVATE
         )
-    private var favorites: Map<Int, Boolean> = mapOf()
 
     fun init(context: Context) {
         contextRef = WeakReference(context)
-    }
-
-    fun startInit() {
-        sp?.edit()?.apply {
-            putBoolean("init", true)
-            apply()
-        }
     }
 
     fun getStartInit(): Boolean? {
