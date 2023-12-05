@@ -23,11 +23,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mystamp.AppManager
+import com.example.mystamp.R
 import com.example.mystamp.ui.theme.MyStampTheme
 
 @SuppressLint("CustomSplashScreen")
@@ -37,14 +39,12 @@ class SplashActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyStampTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Screen()
                     init()
-
                 }
             }
         }
@@ -73,7 +73,7 @@ class SplashActivity : ComponentActivity() {
                 Icon(
                     modifier = Modifier
                         .size(120.dp),
-                    imageVector = Icons.Filled.AdUnits,
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = "앱 아이콘")
                 Text(
                     modifier = Modifier

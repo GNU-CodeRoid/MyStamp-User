@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
 package com.example.mystamp.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,26 +40,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Card
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -77,22 +73,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.mystamp.AppManager
-import com.example.mystamp.utils.QRHelper
 import com.example.mystamp.R
 import com.example.mystamp.dto.RequestAddStampData
 import com.example.mystamp.ui.theme.MyStampTheme
+import com.example.mystamp.utils.QRHelper
 import com.example.mystamp.utils.ServerConnectHelper
 import com.example.mystamp.viewmodel.MainViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import kotlin.math.absoluteValue
@@ -105,26 +100,22 @@ class MainActivity : ComponentActivity() {
     private lateinit var qrHelper: QRHelper
 
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         qrCodeInit()
-
         setContent {
-
-
-            MyStampTheme {
-                Surface {
-
+            MyStampTheme{
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
                     Screen()
                 }
             }
         }
+
     }
 
 
-    @OptIn(ExperimentalPagerApi::class)
     private fun qrCodeInit(){
         qrHelper = QRHelper(this){ scannedContent ->
 
@@ -150,64 +141,69 @@ class MainActivity : ComponentActivity() {
 
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Screen() {
-        val activity = LocalContext.current as? Activity
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.app_name)) },
-                    backgroundColor = MaterialTheme.colors.surface,
+        MyStampTheme {
+            val activity = LocalContext.current as? Activity
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text(
+                            text = stringResource(R.string.app_name)
+                        ) },
 
-                    actions = {
-                        Row(
-                            modifier = Modifier.padding(4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    if (activity != null) {
-                                        toCouponActivity(activity)
+                        actions = {
+                            Row(
+                                modifier = Modifier.padding(4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        if (activity != null) {
+                                            toCouponActivity(activity)
+                                        }
+                                    },
+                                    content = {
+                                        Icon(
+                                            imageVector = Icons.Filled.CreditCard,
+                                            contentDescription = "쿠폰"
+                                        )
                                     }
-                                },
-                                content = {
-                                    Icon(
-                                        imageVector = Icons.Filled.CreditCard,
-                                        contentDescription = "쿠폰"
-                                    )
-                                }
-                            )
-                            IconButton(
-                                onClick = {
-                                    if (activity != null) {
-                                        toUserActivity(activity)
+                                )
+                                IconButton(
+                                    onClick = {
+                                        if (activity != null) {
+                                            toUserActivity(activity)
+                                        }
+                                    },
+                                    content = {
+                                        Icon(
+                                            imageVector = Icons.Filled.Person,
+                                            contentDescription = "정보"
+                                        )
                                     }
-                                },
-                                content = {
-                                    Icon(
-                                        imageVector = Icons.Filled.Person,
-                                        contentDescription = "정보"
-                                    )
-                                }
-                            )
+                                )
+                            }
+
                         }
-
-                    }
-                )
-            },
-            modifier = Modifier.fillMaxSize()
-        ) { padding ->
-            if (activity != null) {
-                HorizontalPagerWithOffsetTransition(Modifier.padding(padding), activity)
+                    )
+                },
+                modifier = Modifier.fillMaxSize()
+            ) { padding ->
+                if (activity != null) {
+                    HorizontalPagerWithOffsetTransition(Modifier.padding(padding))
+                }
             }
         }
+
     }
 
 
 
     @OptIn(ExperimentalPagerApi::class)
     @Composable
-    fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier,activity: Activity) {
+    fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier) {
         // 현재 페이지를 기록하기 위한 pagerState
         mainViewModel.updatePagerState(rememberPagerState())
         val pagerState = mainViewModel.pagerState
@@ -387,7 +383,7 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
                         Box {
                             Image( // 이미지를 표시합니다.
-                                painter = rememberImagePainter(data = stampBoards[currentPage].backImage),
+                                painter = rememberAsyncImagePainter(model = stampBoards[currentPage].backImage),
                                 contentDescription = "스탬프 보드 내용",
                                 modifier = Modifier.fillMaxWidth(),
                                 contentScale = ContentScale.Crop
@@ -425,8 +421,7 @@ class MainActivity : ComponentActivity() {
                                 .heightIn(max = 50.dp)
                         ) {
                             Text( // 버튼에 표시되는 텍스트입니다.
-                                "스탬프 보드 삭제",
-                                color = Color.White // 텍스트 색상을 흰색으로 설정합니다.
+                                "스탬프 보드 삭제"
                             )
 
                         }

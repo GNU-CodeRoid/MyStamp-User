@@ -22,7 +22,7 @@
             android:theme="@style/Theme.MyStamp" />
         <activity
             android:name=".activity.LoginActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/activity_login"
             android:theme="@style/Theme.MyStamp" />
         <activity
