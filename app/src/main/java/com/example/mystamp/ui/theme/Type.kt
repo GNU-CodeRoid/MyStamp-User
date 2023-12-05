@@ -13,15 +13,15 @@ val Typography = Typography(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        color = Color.Red,
+        color = AnchorGray,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp),
 
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        color = Color.Red,
+        fontSize = 24.sp,
+        color = Siam,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),

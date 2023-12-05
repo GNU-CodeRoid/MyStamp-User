@@ -15,5 +15,5 @@ val SubYellow1 = Color(0xFFFFE382)
 val SubYellow2 = Color(0xFFFFC47E)
 val SubYellow3 = Color(0xFFFFAD84)
 val Siam = Color(0xFF022721)
-
+val Cream = Color(0xFFE7E7E7)
 val AnchorGray = Color(0xFF596062)

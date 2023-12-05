@@ -46,7 +46,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.IconButton
+import androidx.compose.material.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -323,8 +323,8 @@ class MainActivity : ComponentActivity() {
 
                             Image(
                                 modifier = Modifier.fillMaxSize(),
-                                painter = rememberImagePainter(
-                                    data = when (stampBoards[page].shopName) {
+                                painter = rememberAsyncImagePainter(
+                                    model = when (stampBoards[page].shopName) {
                                         "last" -> R.drawable.blank
                                         else -> stampBoards[page].frontImage
                                     }
@@ -344,15 +344,15 @@ class MainActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier
                 .fillMaxWidth()
-                .height(30.dp))
-
+                .height(16.dp)
+            )
             IconButton(
                 onClick = {
                     qrHelper.scanQRCode()
                     showDialog = false // 대화 상자를 닫기 위해 showDialog를 false로 설정합니다.
                 }) {
                     Icon(
-                        modifier = Modifier.size(150.dp),
+                        modifier = Modifier.size(100.dp),
                         imageVector = Icons.Filled.QrCode,
                         contentDescription = "qr코드 스캔")
 

@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalActivity
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -33,10 +34,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.mystamp.ui.theme.MainYellow
 import com.example.mystamp.ui.theme.MyStampTheme
 import com.example.mystamp.viewmodel.CouponViewModel
 
@@ -56,7 +54,6 @@ class CouponActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyStampTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -98,12 +95,13 @@ class CouponActivity : ComponentActivity() {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.SpaceAround
                     ) {
 
                         Icon(
                             modifier= Modifier.size(40.dp),
-                            imageVector = Icons.Filled.QrCode,
+                            imageVector = Icons.Filled.LocalActivity,
+                            tint = MainYellow,
                             contentDescription = "쿠폰"
                         )
                         Column(
@@ -114,10 +112,6 @@ class CouponActivity : ComponentActivity() {
                                 modifier = Modifier,
                                 fontSize = 30.sp
                             )
-                            Text(
-                                fontSize = 12.sp,
-                                text = "쿠폰 코드: ${coupon.couponCode}")
-
                         }
                     }
 
@@ -135,6 +129,7 @@ class CouponActivity : ComponentActivity() {
     @Composable
     private fun CouponDialog(){
         val currentIndex = _viewModel.currentIndex
+        val coupon = _viewModel.coupons[currentIndex]
         Dialog(onDismissRequest = { _viewModel.closeDialog() }) {
             Box(
                 modifier = Modifier
@@ -151,8 +146,17 @@ class CouponActivity : ComponentActivity() {
                 ) {
                     Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
                     Text(
-                        _viewModel.coupons[currentIndex].shopId.shopName
+                        text = coupon.shopId.shopName,
+                        style = MaterialTheme.typography.titleLarge//
                     )
+                    Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
+                    Text(
+                        fontSize = 12.sp,
+                        text = "쿠폰 코드:")
+                    Spacer(modifier = Modifier.height(4.dp)) // 요소 사이에 여백을 추가합니다.
+                    Text(
+                        fontSize = 12.sp,
+                        text = "${coupon.couponCode}")
                     Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
                     Button( // QR 코드를 스캔하기 위한 버튼입니다.
                         onClick = {
@@ -163,8 +167,7 @@ class CouponActivity : ComponentActivity() {
                             .heightIn(max = 50.dp)
                     ) {
                         Text( // 버튼에 표시되는 텍스트입니다.
-                            "쿠폰 사용",
-                            color = Color.White // 텍스트 색상을 흰색으로 설정합니다.
+                            "쿠폰 사용"
                         )
 
                     }
@@ -246,7 +249,6 @@ class CouponActivity : ComponentActivity() {
                         ) {
                             Text( // 버튼에 표시되는 텍스트입니다.
                                 "예",
-                                color = Color.White // 텍스트 색상을 흰색으로 설정합니다.
                             )
 
                         }
@@ -260,7 +262,6 @@ class CouponActivity : ComponentActivity() {
                         ) {
                             Text( // 버튼에 표시되는 텍스트입니다.
                                 "아니요",
-                                color = Color.White // 텍스트 색상을 흰색으로 설정합니다.
                             )
 
                         }
