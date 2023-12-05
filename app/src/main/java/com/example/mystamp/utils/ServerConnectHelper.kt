@@ -2,6 +2,7 @@ package com.example.mystamp.utils
 
 
 import android.util.Log
+import com.example.mystamp.dto.Coupon
 import com.example.mystamp.dto.RequestLoginData
 import com.example.mystamp.dto.RequestRegisterData
 import com.example.mystamp.dto.ShopData
@@ -38,6 +39,8 @@ class ServerConnectHelper {
     var requestLogin: RequestLogin? = null
     var requestRegister: RequestRegister? = null
     var userDataRequest: UserDataRequest? = null
+    var couponsDeleteRequest: CouponsDeleteRequest? = null
+    var couponsRequest: CouponsRequest? = null
 
 
     init {
@@ -86,6 +89,64 @@ class ServerConnectHelper {
             }
 
         }
+    }
+
+    fun getCoupons(phoneNumber: String){
+        CoroutineScope(Dispatchers.IO).launch {
+            try{
+                val call = apiService.getCoupons(phoneNumber)
+                val response = call.execute()
+
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+
+                        couponsRequest?.onSuccess(response.body()!!)
+                        Log.d("test", "쿠폰 성공")
+
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        couponsRequest!!.onFailure()
+                        Log.d("test", response.errorBody()?.string().toString())
+                    }
+                }
+            }catch (e: Exception){
+                withContext(Dispatchers.Main) {
+                    couponsRequest?.onFailure()
+                    Log.d("test", e.toString())
+                }
+            }
+
+        }
+    }
+
+    /**
+     * 쿠폰을 사용하는 메소드
+     */
+    fun deleteCoupon(phoneNumber: String, couponCode: String){
+            CoroutineScope(Dispatchers.IO).launch {
+                try{
+                    val call = apiService.deleteCoupon(phoneNumber, couponCode)
+                    val response = call.execute()
+
+                    if (response.isSuccessful) {
+                        withContext(Dispatchers.Main) {
+
+                            couponsDeleteRequest?.onSuccess(response.body()!!)
+
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            couponsDeleteRequest?.onFailure()
+                        }
+                    }
+                }catch (e: Exception){
+                    withContext(Dispatchers.Main) {
+                        couponsDeleteRequest?.onFailure()
+                    }
+                }
+
+            }
     }
 
     fun getUserData(phoneNumber: String){
@@ -291,6 +352,16 @@ class ServerConnectHelper {
             @Query("phoneNumber") phoneNumber: String
         ): Call<RequestUserData>
 
+        @GET("coupon")
+        fun getCoupons(
+            @Query("phoneNumber") phoneNumber: String
+        ): Call<List<Coupon>>
+
+        @DELETE("coupon")
+        fun deleteCoupon(
+            @Query("phoneNumber") phoneNumber: String,
+            @Query("couponCode") couponCode: String
+        ): Call<String>
 
     }
 
@@ -305,6 +376,18 @@ class ServerConnectHelper {
 
     interface UserDataRequest {
         fun onSuccess(userData: RequestUserData)
+        fun onFailure()
+    }
+
+    interface CouponsRequest {
+        fun onSuccess(coupons: List<Coupon>)
+
+        fun onFailure()
+    }
+
+    interface CouponsDeleteRequest {
+        fun onSuccess(message: String)
+
         fun onFailure()
     }
 
