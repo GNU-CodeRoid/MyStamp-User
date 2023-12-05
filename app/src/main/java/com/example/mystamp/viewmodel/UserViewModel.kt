@@ -50,15 +50,18 @@ class UserViewModel : ViewModel() {
 
                                 override fun onSuccess(userData: RequestUserData) {
                                     continuation.resume(userData)
+                                    Log.d("test","통신성공")
                                 }
 
                                 override fun onFailure() {
                                     continuation.resume(RequestUserData())
+                                    Log.d("test","통신실패")
                                 }
                             }
                         serverConnectHelper.getUserData(AppManager.getUid()!!)
                     }
                 }
+                _userData = data
 
             } catch (e: Exception) {
                 // Handle the exception (log, report, etc.)
