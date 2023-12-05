@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mystamp.AppManager
+import com.example.mystamp.R
 import com.example.mystamp.dto.ShopData
 import com.example.mystamp.dto.StampBoard
 import com.example.mystamp.utils.ServerConnectHelper
@@ -76,9 +77,9 @@ class MainViewModel : ViewModel() {
                             businessNumber = datum.shopId.businessNumber
                             shopName = datum.shopId.shopName
                             frontImage =
-                                "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214F.jpg"
+                                "https://postfiles.pstatic.net/MjAyMzEyMDVfMjEx/MDAxNzAxNzgwMTc2NjEz.HKN5pypPedMUjBFeNAUe2tUHcfmznJWZZ7h5SpGQ1pcg.UGxhrT4DhaO86IMGCspYcxN3qvhwjO9fWleNlZ05PRMg.PNG.cha_dh1004/%ED%9D%AC%EB%A7%9D%EC%BB%A4%ED%94%BC.png?type=w966"
                             backImage =
-                                "https://wemix-dev-s3.s3.amazonaws.com/media/sample/%EC%BF%A0%ED%8F%B0(%EB%AA%85%ED%95%A8)/2023/NC214B.jpg"
+                                "https://postfiles.pstatic.net/MjAyMzEyMDVfMTI5/MDAxNzAxNzgxMTU0NjAy.5vSb0OQnZBEobIegApXA5NtnCP1x-mxy3IUQcOs1T50g.8OJsLaOMPy8E_T4eptLssNnbLgTX-2GVi5xCxQvEmdEg.PNG.cha_dh1004/%EB%8F%84%EC%9E%A5_%EC%9D%B4%EB%AF%B8%EC%A7%80.png?type=w966"
                             stampCount = datum.count
                             maxCount = datum.shopId.stampLimit
 

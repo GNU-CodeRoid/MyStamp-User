@@ -11,6 +11,10 @@ data class ShopId(
     val stampLimit: Int,
     @SerializedName("businessNumber")
     val businessNumber: String,
+    @SerializedName("coupon_category")
+    val couponCategory: String,
+    @SerializedName("coupon_description")
+    val couponDescription: String,
     @SerializedName("createTime")
     val createTime: String,
     @SerializedName("updateTime")

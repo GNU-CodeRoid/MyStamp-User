@@ -95,24 +95,32 @@ class CouponActivity : ComponentActivity() {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceAround
+                        horizontalArrangement = Arrangement.Start
                     ) {
 
                         Icon(
-                            modifier= Modifier.size(40.dp),
+                            modifier= Modifier.size(80.dp),
                             imageVector = Icons.Filled.LocalActivity,
                             tint = MainYellow,
                             contentDescription = "쿠폰"
                         )
-                        Column(
-                            modifier = Modifier.padding(4.dp)
-                        ) {
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically){
                             Text(
                                 coupon.shopId.shopName,
                                 modifier = Modifier,
                                 fontSize = 30.sp
                             )
+                            Text(
+                                coupon.shopId.couponCategory
+                            )
                         }
+
+
+
                     }
 
                 }
@@ -151,12 +159,18 @@ class CouponActivity : ComponentActivity() {
                     )
                     Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
                     Text(
+                        text = coupon.shopId.couponDescription,
+                        style = MaterialTheme.typography.bodyLarge//
+                    )
+                    Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
+                    Text(
                         fontSize = 12.sp,
                         text = "쿠폰 코드:")
                     Spacer(modifier = Modifier.height(4.dp)) // 요소 사이에 여백을 추가합니다.
                     Text(
                         fontSize = 12.sp,
-                        text = "${coupon.couponCode}")
+                        text = coupon.couponCode
+                    )
                     Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
                     Button( // QR 코드를 스캔하기 위한 버튼입니다.
                         onClick = {
