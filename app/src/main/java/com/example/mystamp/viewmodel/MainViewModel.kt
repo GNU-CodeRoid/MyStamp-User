@@ -84,9 +84,9 @@ class MainViewModel : ViewModel() {
 
                             Log.d("test", "사업자번호: ${datum.image}")
                         }
-                    } + StampBoard("last","last") // 추가 데이터
+                    } + StampBoard("last","") // 추가 데이터
                 } else {
-                    listOf(StampBoard("last","last")) // 기본 데이터만 반환
+                    listOf(StampBoard("last","")) // 기본 데이터만 반환
                 }
             } catch (e: Exception) {
                 // Handle the exception (log, report, etc.)

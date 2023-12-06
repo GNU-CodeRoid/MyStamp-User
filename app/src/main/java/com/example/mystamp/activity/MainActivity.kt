@@ -61,6 +61,7 @@ import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -103,6 +104,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var qrHelper: QRHelper
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         qrCodeInit()
@@ -332,7 +334,7 @@ class MainActivity : ComponentActivity() {
                             Image(
                                 modifier = Modifier.fillMaxWidth(),
                                 painter = rememberAsyncImagePainter(
-                                    model = when (stampBoards[page].shopName) {
+                                    model = when (stampBoards[page].businessNumber) {
                                         "last" -> R.drawable.blank
                                         else -> DataUtil.imageBitmapFromBytes(stampBoards[page].frontImage)
                                     }
@@ -341,14 +343,18 @@ class MainActivity : ComponentActivity() {
                                 contentScale = ContentScale.Crop    // 이미지가 잘려서 확대됩니다.
 
                             )
-                            Box(modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.White.copy(alpha = 0.7f))
-                                .padding(8.dp)
-                            ) {
-                                Text(
-                                    style = MaterialTheme.typography.titleLarge,
-                                    text = stampBoards[page].shopName)
+                            if(stampBoards[page].businessNumber != "last")
+                            {
+                                Box(modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.White.copy(alpha = 0.7f))
+                                    .padding(8.dp)
+                                ) {
+                                    Text(
+                                        style = MaterialTheme.typography.titleLarge,
+                                        text = stampBoards[page].shopName)
+                                }
+
                             }
 
 
