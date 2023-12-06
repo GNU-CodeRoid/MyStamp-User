@@ -412,7 +412,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.fillMaxWidth(),
                                 contentScale = ContentScale.Crop
                             )
-                            DrawStampLines(stampBoards[currentPage].stampCount, 40, 23)
+                            DrawStampLines(stampBoards[currentPage].stampCount, 42, 27)
                         }
 
                         Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
@@ -470,15 +470,16 @@ class MainActivity : ComponentActivity() {
     private fun DrawStampLines(stampCount: Int, paddingTop: Int, paddingStart: Int) {
         val stampLineCounts = listOf(5, 10,15) // Define the stamp count thresholds for each line
         val lineCount = 5
+        var topPadding = 0 // Adjust the padding based on your requirements
         stampLineCounts.forEachIndexed { index, lineThreshold ->
             if (stampCount >= lineThreshold) {
 
-                val topPadding = paddingTop + index * 45 // Adjust the padding based on your requirements
+                topPadding = paddingTop + index * 44 // Adjust the padding based on your requirements
                 Stamping(lineCount, topPadding, paddingStart)
             }else{
                 val checkLineCount = lineCount - (lineThreshold - stampCount)
                 if(lineCount > checkLineCount){
-                    val topPadding = paddingTop + index * 45 // Adjust the padding based on your requirements
+                    topPadding = paddingTop + index * 44
                     Stamping(checkLineCount, topPadding, paddingStart)
                 }
             }
@@ -491,13 +492,13 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .horizontalScroll(rememberScrollState())
                 .padding(top = paddingTop.dp, start = paddingStart.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)// 가로 정렬 방식을 설정합니다. 각 요소 사이에 2dp 간격을 두고 배치합니다.
+            horizontalArrangement = Arrangement.spacedBy(14.dp)// 가로 정렬 방식을 설정합니다. 각 요소 사이에 2dp 간격을 두고 배치합니다.
         ) {
             repeat(lineCount) {
                 Image(
                     painter = painterResource(R.drawable.stamp_image),
                     contentDescription = null,
-                    modifier = Modifier.size(45.dp)
+                    modifier = Modifier.size(35.dp)
                 )
             }
         }
