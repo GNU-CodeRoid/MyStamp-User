@@ -18,11 +18,13 @@
 package com.example.mystamp.activity
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,6 +60,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,11 +81,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.example.mystamp.AppManager
 import com.example.mystamp.R
 import com.example.mystamp.dto.RequestAddStampData
 import com.example.mystamp.ui.theme.MyStampTheme
+import com.example.mystamp.utils.DataUtil
 import com.example.mystamp.utils.QRHelper
 import com.example.mystamp.utils.ServerConnectHelper
 import com.example.mystamp.viewmodel.MainViewModel
@@ -141,6 +144,7 @@ class MainActivity : ComponentActivity() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Screen() {
@@ -201,6 +205,7 @@ class MainActivity : ComponentActivity() {
 
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalPagerApi::class)
     @Composable
     fun HorizontalPagerWithOffsetTransition(modifier: Modifier = Modifier) {
@@ -319,20 +324,33 @@ class MainActivity : ComponentActivity() {
                     Column(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box {
+                        Box(
+                            contentAlignment = Alignment.Center
+                        ) {
+
 
                             Image(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxWidth(),
                                 painter = rememberAsyncImagePainter(
                                     model = when (stampBoards[page].shopName) {
                                         "last" -> R.drawable.blank
-                                        else -> stampBoards[page].frontImage
+                                        else -> DataUtil.imageBitmapFromBytes(stampBoards[page].frontImage)
                                     }
                                 ),
                                 contentDescription = "스탬프 보드 메인",
                                 contentScale = ContentScale.Crop    // 이미지가 잘려서 확대됩니다.
 
                             )
+                            Box(modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White.copy(alpha = 0.7f))
+                                .padding(8.dp)
+                            ) {
+                                Text(
+                                    style = MaterialTheme.typography.titleLarge,
+                                    text = stampBoards[page].shopName)
+                            }
+
 
                         }
                     }

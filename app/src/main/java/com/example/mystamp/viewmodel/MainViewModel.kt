@@ -76,14 +76,13 @@ class MainViewModel : ViewModel() {
                         StampBoard().apply {
                             businessNumber = datum.shopId.businessNumber
                             shopName = datum.shopId.shopName
-                            frontImage =
-                                "https://postfiles.pstatic.net/MjAyMzEyMDVfMjEx/MDAxNzAxNzgwMTc2NjEz.HKN5pypPedMUjBFeNAUe2tUHcfmznJWZZ7h5SpGQ1pcg.UGxhrT4DhaO86IMGCspYcxN3qvhwjO9fWleNlZ05PRMg.PNG.cha_dh1004/%ED%9D%AC%EB%A7%9D%EC%BB%A4%ED%94%BC.png?type=w966"
+                            frontImage = datum.image
                             backImage =
-                                "https://postfiles.pstatic.net/MjAyMzEyMDVfMTI5/MDAxNzAxNzgxMTU0NjAy.5vSb0OQnZBEobIegApXA5NtnCP1x-mxy3IUQcOs1T50g.8OJsLaOMPy8E_T4eptLssNnbLgTX-2GVi5xCxQvEmdEg.PNG.cha_dh1004/%EB%8F%84%EC%9E%A5_%EC%9D%B4%EB%AF%B8%EC%A7%80.png?type=w966"
+                                "https://postfiles.pstatic.net/MjAyMzEyMDZfNzAg/MDAxNzAxODQ1ODQ4MDAw.GK1Zp7gKhzJjR5Iwr0MM4ipCo3u_1cdwhesZUEvT1mUg._qDNDpU9r0AmspKq26uKeb7DOb45lvapomPqTWPnWvYg.PNG.cha_dh1004/stampboard.png?type=w966"
                             stampCount = datum.count
                             maxCount = datum.shopId.stampLimit
 
-                            Log.d("test", "사업자번호: ${datum.shopId.businessNumber}")
+                            Log.d("test", "사업자번호: ${datum.image}")
                         }
                     } + StampBoard("last","last") // 추가 데이터
                 } else {

@@ -188,7 +188,7 @@ class ServerConnectHelper {
                     withContext(Dispatchers.Main) {
 
                         requestStampBoards?.onSuccess(response.body()!!)
-                        Log.d("test", "성공")
+                        Log.d("test", "s성공")
 
                     }
                 } else {
