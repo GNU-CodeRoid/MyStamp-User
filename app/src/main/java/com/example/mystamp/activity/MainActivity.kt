@@ -412,7 +412,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.fillMaxWidth(),
                                 contentScale = ContentScale.Crop
                             )
-                            DrawStampLines(stampBoards[currentPage].stampCount, 40, 24)
+                            DrawStampLines(stampBoards[currentPage].stampCount, 40, 23)
                         }
 
                         Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.

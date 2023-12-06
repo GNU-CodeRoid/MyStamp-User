@@ -78,7 +78,7 @@ class MainViewModel : ViewModel() {
                             shopName = datum.shopId.shopName
                             frontImage = datum.image
                             backImage =
-                                "https://postfiles.pstatic.net/MjAyMzEyMDZfNzAg/MDAxNzAxODQ1ODQ4MDAw.GK1Zp7gKhzJjR5Iwr0MM4ipCo3u_1cdwhesZUEvT1mUg._qDNDpU9r0AmspKq26uKeb7DOb45lvapomPqTWPnWvYg.PNG.cha_dh1004/stampboard.png?type=w966"
+                                "https://postfiles.pstatic.net/MjAyMzEyMDZfMjI3/MDAxNzAxODY1NjU2MjYx.pp7lZ-5VGMlvL5h6KC-1vBamp32qsbHkObUchMRN__sg.vwOorD3TG-EBPsumHJb0liwSsHNvLwC_KQjBrA7Tgjkg.PNG.cha_dh1004/stampboard%EC%88%98%EC%A0%95.png?type=w966"
                             stampCount = datum.count
                             maxCount = datum.shopId.stampLimit
 
