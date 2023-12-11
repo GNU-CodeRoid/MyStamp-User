@@ -27,11 +27,12 @@ class MainViewModel : ViewModel() {
     private var _stampBoards by mutableStateOf<List<StampBoard>>(emptyList())
     private var _currentPage by mutableIntStateOf(0)
     private var _fetchTrigger by mutableStateOf(false)
+    private var _isShowDialog by mutableStateOf(false)
 
     @OptIn(ExperimentalPagerApi::class)
     private lateinit var _pagerState: PagerState
 
-
+    val isShowDialog: Boolean get() = _isShowDialog
     val stampBoards: List<StampBoard> get() = _stampBoards
     val currentPage: Int get() = _currentPage
 
@@ -41,6 +42,13 @@ class MainViewModel : ViewModel() {
     val pagerState: PagerState get() = _pagerState
 
 
+    fun showStampDialog(){
+        _isShowDialog = true
+    }
+
+    fun closeStampDialog(){
+        _isShowDialog = false
+    }
     @OptIn(ExperimentalPagerApi::class)
     fun updatePagerState(pagerState: PagerState){
         _pagerState = pagerState
