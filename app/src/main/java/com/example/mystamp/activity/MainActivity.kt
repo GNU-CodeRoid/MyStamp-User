@@ -421,27 +421,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(16.dp)) // 요소 사이에 여백을 추가합니다.
                     Button( // QR 코드를 스캔하기 위한 버튼입니다.
                         onClick = {
-
-
-                            serverConnectHelper.requestDeleteStamp = object : ServerConnectHelper.RequestDeleteStamp{
-                                override fun onSuccess(message: String) {
-                                    _viewModel.updateFetchTrigger(!_viewModel.fetchTrigger)
-                                    _viewModel.closeStampDialog()
-                                    Log.d("test","삭제 성공")
-                                }
-
-                                override fun onFailure() {
-                                    Log.d("test","삭제 실패")
-                                }
-
-                            }
-
-                            serverConnectHelper.deleteStamp(AppManager.getUid()!!,stampBoards[currentPage].businessNumber)
-
-
-
-
-
+                          _viewModel.deleteStampBoard()//스탬프보드 삭제
                         },
                         modifier = Modifier
                             .widthIn(max = 200.dp)

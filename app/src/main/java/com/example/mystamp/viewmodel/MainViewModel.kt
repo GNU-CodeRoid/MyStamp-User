@@ -102,4 +102,24 @@ class MainViewModel : ViewModel() {
             }
         }
     }
+
+    fun deleteStampBoard(){
+        viewModelScope.launch {
+            serverConnectHelper.requestDeleteStamp = object : ServerConnectHelper.RequestDeleteStamp{
+                override fun onSuccess(message: String) {
+                    updateFetchTrigger(!fetchTrigger)
+                    closeStampDialog()
+                    Log.d("test","삭제 성공")
+                }
+
+                override fun onFailure() {
+                    Log.d("test","삭제 실패")
+                }
+
+            }
+
+            serverConnectHelper.deleteStamp(AppManager.getUid()!!,stampBoards[currentPage].businessNumber)
+        }
+
+    }
 }
