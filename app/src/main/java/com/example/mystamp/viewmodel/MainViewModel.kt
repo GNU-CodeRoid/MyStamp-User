@@ -27,11 +27,12 @@ class MainViewModel : ViewModel() {
     private var _stampBoards by mutableStateOf<List<StampBoard>>(emptyList())
     private var _currentPage by mutableIntStateOf(0)
     private var _fetchTrigger by mutableStateOf(false)
+    private var _isShowDialog by mutableStateOf(false)
 
     @OptIn(ExperimentalPagerApi::class)
     private lateinit var _pagerState: PagerState
 
-
+    val isShowDialog: Boolean get() = _isShowDialog
     val stampBoards: List<StampBoard> get() = _stampBoards
     val currentPage: Int get() = _currentPage
 
@@ -41,6 +42,13 @@ class MainViewModel : ViewModel() {
     val pagerState: PagerState get() = _pagerState
 
 
+    fun showStampDialog(){
+        _isShowDialog = true
+    }
+
+    fun closeStampDialog(){
+        _isShowDialog = false
+    }
     @OptIn(ExperimentalPagerApi::class)
     fun updatePagerState(pagerState: PagerState){
         _pagerState = pagerState
@@ -78,20 +86,40 @@ class MainViewModel : ViewModel() {
                             shopName = datum.shopId.shopName
                             frontImage = datum.image
                             backImage =
-                                "https://postfiles.pstatic.net/MjAyMzEyMDZfNzAg/MDAxNzAxODQ1ODQ4MDAw.GK1Zp7gKhzJjR5Iwr0MM4ipCo3u_1cdwhesZUEvT1mUg._qDNDpU9r0AmspKq26uKeb7DOb45lvapomPqTWPnWvYg.PNG.cha_dh1004/stampboard.png?type=w966"
+                                "https://postfiles.pstatic.net/MjAyMzEyMDZfMjc0/MDAxNzAxODY3MzMyNTMw.MswJ_PgbXwQaB2Lf20a7rAS2QBsiuVTgTSg2z91Xeksg.nghKgJ01YGvV2XqNUxMKWB7zDFBEGFmGNlLKwq01EQ4g.PNG.cha_dh1004/002.png?type=w966"
                             stampCount = datum.count
                             maxCount = datum.shopId.stampLimit
 
                             Log.d("test", "사업자번호: ${datum.image}")
                         }
-                    } + StampBoard("last","last") // 추가 데이터
+                    } + StampBoard("last","") // 추가 데이터
                 } else {
-                    listOf(StampBoard("last","last")) // 기본 데이터만 반환
+                    listOf(StampBoard("last","")) // 기본 데이터만 반환
                 }
             } catch (e: Exception) {
                 // Handle the exception (log, report, etc.)
                 Log.e("error", "Error fetching stamp boards", e)
             }
         }
+    }
+
+    fun deleteStampBoard(){
+        viewModelScope.launch {
+            serverConnectHelper.requestDeleteStamp = object : ServerConnectHelper.RequestDeleteStamp{
+                override fun onSuccess(message: String) {
+                    updateFetchTrigger(!fetchTrigger)
+                    closeStampDialog()
+                    Log.d("test","삭제 성공")
+                }
+
+                override fun onFailure() {
+                    Log.d("test","삭제 실패")
+                }
+
+            }
+
+            serverConnectHelper.deleteStamp(AppManager.getUid()!!,stampBoards[currentPage].businessNumber)
+        }
+
     }
 }
