@@ -4,13 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.mystamp.activity.QRCodeActivity
 import com.google.zxing.integration.android.IntentIntegrator
 import com.journeyapps.barcodescanner.CaptureActivity
 
 class QRHelper(private val activity: ComponentActivity, private val onScanResult: (String) -> Unit) {
-    class AnyOrientationCaptureActivity : CaptureActivity() {
-        //QR 코드 스캐너 화면 회전 관련
-    }
 
     private val qrCodeForResult =
         activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -31,10 +29,11 @@ class QRHelper(private val activity: ComponentActivity, private val onScanResult
     fun scanQRCode() {
         val integrator = IntentIntegrator(activity)
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-        integrator.setPrompt("QR Code Scanner")
+        integrator.setPrompt("QR Code 스캔")
         integrator.captureActivity =
-            AnyOrientationCaptureActivity::class.java // //QR 코드 스캐너 회전 관련
-        integrator.setOrientationLocked(true) // 스캔 화면 세로 고정
+            QRCodeActivity::class.java
+        integrator.setOrientationLocked(true)
+        // 스캔 화면 세로 고정
         integrator.setBeepEnabled(false)    //  스캔 시 소리 끔
         qrCodeForResult.launch(integrator.createScanIntent())
     }
